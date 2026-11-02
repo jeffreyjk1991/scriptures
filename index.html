@@ -32,55 +32,37 @@
 </section>
 
 <section id="you" class="view">
-  <div class="you-head">
-    <div class="you-kicker">Your reading</div>
-    <h1>You</h1>
-    <p>Shape the feed, keep what matters, and control how you read. No account required.</p>
+  <div class="you-minimal">
+    <header class="you-minimal-head">
+      <h1>You</h1>
+    </header>
+
+    <div class="you-menu" aria-label="Your settings">
+      <button class="you-menu-row" onclick="openSavedMenu()">
+        <span class="you-menu-icon">♡</span>
+        <span class="you-menu-label">Saved</span>
+        <span id="savedCount" class="you-menu-meta">0</span>
+        <i>›</i>
+      </button>
+      <button class="you-menu-row" onclick="openPersonalizeMenu()">
+        <span class="you-menu-icon">◌</span>
+        <span class="you-menu-label">Personalize</span>
+        <span id="interestSummary" class="you-menu-meta">All</span>
+        <i>›</i>
+      </button>
+      <button class="you-menu-row" onclick="openReadingMenu()">
+        <span class="you-menu-icon you-menu-aa">Aa</span>
+        <span class="you-menu-label">Reading</span>
+        <span id="readingSummary" class="you-menu-meta">Default</span>
+        <i>›</i>
+      </button>
+      <button class="you-menu-row" onclick="openAboutMenu()">
+        <span class="you-menu-icon">···</span>
+        <span class="you-menu-label">About</span>
+        <i>›</i>
+      </button>
+    </div>
   </div>
-
-  <section class="settings-card">
-    <div class="settings-title"><div><h2>Saved</h2><p>Your personal library on this device.</p></div><span id="savedCount" class="count-badge">0</span></div>
-    <div id="savedList" class="saved-stack"></div>
-  </section>
-
-  <section class="settings-card">
-    <div class="settings-title"><div><h2>Interests</h2><p>These quietly shape your <strong>All</strong> feed. Leave everything unselected for the full mix.</p></div></div>
-    <h3>Traditions</h3>
-    <div id="traditionInterests" class="interest-chips"></div>
-    <h3>Themes</h3>
-    <div id="topicInterests" class="interest-chips"></div>
-  </section>
-
-  <section class="settings-card">
-    <div class="settings-title"><div><h2>Reading</h2><p>Comfort and audio preferences.</p></div></div>
-    <div class="setting-row">
-      <div><b>Text size</b><span>Change scripture size without changing the interface.</span></div>
-      <div class="segmented" id="textSizeControl">
-        <button data-text-size="small">A</button><button data-text-size="default">A</button><button data-text-size="large">A</button>
-      </div>
-    </div>
-    <div class="setting-row">
-      <div><b>Audio speed</b><span>Used by Listen for every language.</span></div>
-      <div class="segmented" id="audioRateControl">
-        <button data-audio-rate="0.8">0.8×</button><button data-audio-rate="0.95">1×</button><button data-audio-rate="1.1">1.1×</button>
-      </div>
-    </div>
-    <button class="setting-link" onclick="openLanguageOverview()"><div><b>Languages</b><span id="languageSummary">English by default · set per scripture</span></div><i>›</i></button>
-  </section>
-
-  <section class="settings-card">
-    <div class="settings-title"><div><h2>Learn & trust</h2><p>Context, sourcing and product information.</p></div></div>
-    <a class="setting-link" href="/scriptures"><div><b>Browse scriptures</b><span>Bible, Qur’an, Gita, Dhammapada, Tanakh and more</span></div><i>›</i></a><a class="setting-link" href="/topics"><div><b>Browse by theme</b><span>Peace, anxiety, grief, purpose, love and more</span></div><i>›</i></a><a class="setting-link" href="/guides"><div><b>Scripture guides</b><span>Beginner context for every tradition</span></div><i>›</i></a>
-    <a class="setting-link" href="/sources"><div><b>Sources & translations</b><span>See exactly what text and translation is used</span></div><i>›</i></a>
-    <a class="setting-link" href="/about"><div><b>About WisdomScroll</b><span>Purpose and editorial philosophy</span></div><i>›</i></a>
-    <a class="setting-link" href="/privacy"><div><b>Privacy</b><span>How saved passages and preferences are stored</span></div><i>›</i></a>
-  </section>
-
-  <section class="settings-card settings-card-last">
-    <div class="settings-title"><div><h2>Your data</h2><p>Preferences and saves currently stay in this browser.</p></div></div>
-    <button class="secondary-action" onclick="resetPreferences()">Reset interests & reading settings</button>
-    <button class="danger-action" onclick="clearSaved()">Clear saved passages</button>
-  </section>
 </section>
 
 <nav class="bottom-nav">

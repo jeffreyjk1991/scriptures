@@ -98,16 +98,66 @@ function speakPassage(id){const p=passages.find(x=>x.id===id),l=language(p.tradi
 async function sharePassage(id){const p=passages.find(x=>x.id===id),v=textFor(p)+" — "+p.citation;try{if(navigator.share)await navigator.share({title:p.citation,text:v,url:location.origin+"/?passage="+id});else{await navigator.clipboard.writeText(v+"\n"+location.origin+"/?passage="+id);toast("Copied")}}catch{}}
 function jumpTo(id){state.filter="all";state.topic=null;setView("home");updateHeader();renderBatch(true,FEED_BATCH_SIZE,id);feed.scrollTop=0}
 function renderYou(){
-  $("#savedCount").textContent=state.saved.length;
-  const savedPassages=passages.filter(p=>state.saved.includes(p.id));
-  $("#savedList").innerHTML=savedPassages.length?savedPassages.map(p=>{const t=tradition(p.tradition);return `<button class="saved-item setting-link" onclick="jumpTo(${p.id})"><div class="saved-item-mark">${t.symbol}</div><div class="saved-item-copy"><b>${p.citation}</b><span>${textFor(p)}</span></div><i>›</i></button>`}).join(""):'<div class="saved-empty">Nothing saved yet. Tap ♡ on any passage.</div>';
-  $("#traditionInterests").innerHTML=traditions.map(t=>`<button class="interest-chip ${state.interests.traditions.includes(t.slug)?"active":""}" onclick="toggleInterest('traditions','${t.slug}')">${t.name}</button>`).join("");
-  $("#topicInterests").innerHTML=topics.map(t=>`<button class="interest-chip ${state.interests.topics.includes(t)?"active":""}" onclick="toggleInterest('topics','${t}')">${t}</button>`).join("");
-  $$("[data-text-size]").forEach(b=>b.classList.toggle("active",b.dataset.textSize===state.textSize));
-  $$("[data-audio-rate]").forEach(b=>b.classList.toggle("active",Number(b.dataset.audioRate)===state.audioRate));
-  const custom=Object.keys(state.langs).filter(k=>state.langs[k]&&state.langs[k]!=="en").length;$("#languageSummary").textContent=custom?custom+" scripture language preference"+(custom>1?"s":"")+" set":"English by default · set per scripture";
+  const savedCount=$("#savedCount");
+  if(savedCount)savedCount.textContent=state.saved.length;
+  const interestSummary=$("#interestSummary");
+  const interestCount=state.interests.traditions.length+state.interests.topics.length;
+  if(interestSummary)interestSummary.textContent=interestCount?interestCount+" selected":"All";
+  const readingSummary=$("#readingSummary");
+  const customLang=Object.keys(state.langs).some(k=>state.langs[k]&&state.langs[k]!=="en");
+  const customized=state.textSize!=="default"||state.audioRate!==.95||customLang;
+  if(readingSummary)readingSummary.textContent=customized?"Customized":"Default";
 }
-function toggleInterest(type,value){const a=state.interests[type],i=a.indexOf(value);if(i>=0)a.splice(i,1);else a.push(value);localStorage.setItem("ws-interests",JSON.stringify(state.interests));renderYou()}
+function openSavedMenu(){
+  const savedPassages=passages.filter(p=>state.saved.includes(p.id));
+  const content=savedPassages.length?savedPassages.map(p=>{const t=tradition(p.tradition);return `<button class="choice saved-sheet-row" onclick="closeSheet();jumpTo(${p.id})"><div class="choice-icon">${t.symbol}</div><div class="choice-main"><b>${p.citation}</b><span>${textFor(p)}</span></div><div class="check">›</div></button>`}).join(""):'<div class="sheet-empty">No saved passages yet.</div>';
+  sheet(`<div class="sheet-head"><h2>Saved</h2><button class="close" onclick="closeSheet()">×</button></div>${content}`);
+}
+function openPersonalizeMenu(){
+  sheet(`<div class="sheet-head"><h2>Personalize</h2><button class="close" onclick="closeSheet()">×</button></div>
+    <div class="mini-section"><div class="mini-label">Traditions</div><div class="interest-chips">${traditions.map(t=>`<button class="interest-chip ${state.interests.traditions.includes(t.slug)?"active":""}" onclick="toggleInterest('traditions','${t.slug}')">${t.name}</button>`).join("")}</div></div>
+    <div class="mini-section"><div class="mini-label">Themes</div><div class="interest-chips">${topics.map(t=>`<button class="interest-chip ${state.interests.topics.includes(t)?"active":""}" onclick="toggleInterest('topics','${t}')">${t}</button>`).join("")}</div></div>`);
+}
+function openReadingMenu(){
+  const custom=Object.keys(state.langs).filter(k=>state.langs[k]&&state.langs[k]!=="en").length;
+  sheet(`<div class="sheet-head"><h2>Reading</h2><button class="close" onclick="closeSheet()">×</button></div>
+    <div class="compact-setting"><span>Text size</span><div class="segmented"><button class="${state.textSize==="small"?"active":""}" onclick="setTextSizeChoice('small')">A</button><button class="${state.textSize==="default"?"active":""}" onclick="setTextSizeChoice('default')">A</button><button class="${state.textSize==="large"?"active":""}" onclick="setTextSizeChoice('large')">A</button></div></div>
+    <div class="compact-setting"><span>Audio speed</span><div class="segmented"><button class="${state.audioRate===.8?"active":""}" onclick="setAudioRateChoice(.8)">0.8×</button><button class="${state.audioRate===.95?"active":""}" onclick="setAudioRateChoice(.95)">1×</button><button class="${state.audioRate===1.1?"active":""}" onclick="setAudioRateChoice(1.1)">1.1×</button></div></div>
+    <button class="choice compact-link" onclick="openLanguageOverview()"><div class="choice-main"><b>Languages</b><span>${custom?custom+" customized":"English by default"}</span></div><div class="check">›</div></button>`);
+}
+function openAboutMenu(){
+  sheet(`<div class="sheet-head"><h2>About</h2><button class="close" onclick="closeSheet()">×</button></div>
+    <a class="choice compact-link" href="/about"><div class="choice-main"><b>About WisdomScroll</b></div><div class="check">›</div></a>
+    <a class="choice compact-link" href="/sources"><div class="choice-main"><b>Sources & translations</b></div><div class="check">›</div></a>
+    <a class="choice compact-link" href="/privacy"><div class="choice-main"><b>Privacy</b></div><div class="check">›</div></a>
+    <button class="choice compact-link" onclick="openMoreMenu()"><div class="choice-main"><b>More</b></div><div class="check">›</div></button>`);
+}
+function openMoreMenu(){
+  sheet(`<div class="sheet-head"><h2>More</h2><button class="close" onclick="closeSheet()">×</button></div>
+    <a class="choice compact-link" href="/scriptures"><div class="choice-main"><b>Browse scriptures</b></div><div class="check">›</div></a>
+    <a class="choice compact-link" href="/topics"><div class="choice-main"><b>Browse themes</b></div><div class="check">›</div></a>
+    <a class="choice compact-link" href="/guides"><div class="choice-main"><b>Guides</b></div><div class="check">›</div></a>
+    <button class="choice compact-link" onclick="openDataMenu()"><div class="choice-main"><b>Data & reset</b></div><div class="check">›</div></button>`);
+}
+function openDataMenu(){
+  sheet(`<div class="sheet-head"><h2>Data & reset</h2><button class="close" onclick="closeSheet()">×</button></div>
+    <button class="choice compact-link" onclick="resetPreferences();closeSheet()"><div class="choice-main"><b>Reset preferences</b></div></button>
+    <button class="choice compact-link danger-link" onclick="clearSaved();closeSheet()"><div class="choice-main"><b>Clear saved passages</b></div></button>`);
+}
+function setTextSizeChoice(value){
+  state.textSize=value;
+  localStorage.setItem("ws-text-size",state.textSize);
+  applyTextSize();
+  renderYou();
+  openReadingMenu();
+}
+function setAudioRateChoice(value){
+  state.audioRate=Number(value);
+  localStorage.setItem("ws-audio-rate",String(state.audioRate));
+  renderYou();
+  openReadingMenu();
+}
+function toggleInterest(type,value){const a=state.interests[type],i=a.indexOf(value);if(i>=0)a.splice(i,1);else a.push(value);localStorage.setItem("ws-interests",JSON.stringify(state.interests));renderYou();openPersonalizeMenu()}
 function applyTextSize(){document.body.classList.remove("text-size-small","text-size-large");if(state.textSize==="small")document.body.classList.add("text-size-small");if(state.textSize==="large")document.body.classList.add("text-size-large")}
 function openLanguageOverview(){sheet(`<div class="sheet-head"><h2>Scripture languages</h2><button class="close" onclick="closeSheet()">×</button></div>${traditions.map(t=>{const l=language(t.slug);return `<button class="choice" onclick="openLanguageFor('${t.slug}')"><div class="choice-icon">${t.symbol}</div><div class="choice-main"><b>${t.name}</b><span>${l.label}</span></div><div class="check">›</div></button>`}).join("")}`)}
 function openLanguageFor(slug){const t=tradition(slug),cur=language(slug);sheet(`<div class="sheet-head"><h2>${t.name} language</h2><button class="close" onclick="closeSheet()">×</button></div>${t.languages.map(l=>`<button class="choice" onclick="setLanguageFromYou('${slug}','${l.key}')"><div class="choice-main"><b>${l.label}</b><span>${l.source}</span></div><div class="check">${cur.key===l.key?"●":"○"}</div></button>`).join("")}`)}
@@ -116,8 +166,6 @@ function resetPreferences(){state.interests={traditions:[],topics:[]};state.text
 function clearSaved(){state.saved=[];localStorage.setItem("ws-saved","[]");renderYou();document.querySelectorAll("[data-save-id]").forEach(btn=>btn.childNodes[0].nodeValue="♡");toast("Saved passages cleared")}
 function markCurrent(){const center=feed.getBoundingClientRect().top+feed.clientHeight/2;let best=null,d=Infinity;document.querySelectorAll(".slide").forEach(s=>{const r=s.getBoundingClientRect(),dist=Math.abs((r.top+r.height/2)-center);if(dist<d){d=dist;best=s}});document.querySelectorAll(".slide").forEach(s=>s.classList.toggle("current",s===best));if(best){state.activeId=Number(best.dataset.id);updateHeader()}}
 $("#filterBtn").onclick=openFilter;$("#langBtn").onclick=openLanguage;
-$("#textSizeControl").onclick=e=>{const b=e.target.closest("[data-text-size]");if(!b)return;state.textSize=b.dataset.textSize;localStorage.setItem("ws-text-size",state.textSize);applyTextSize();renderYou()};
-$("#audioRateControl").onclick=e=>{const b=e.target.closest("[data-audio-rate]");if(!b)return;state.audioRate=Number(b.dataset.audioRate);localStorage.setItem("ws-audio-rate",String(state.audioRate));renderYou()};
 function toast(msg){const e=document.createElement("div");e.className="toast";e.textContent=msg;document.body.appendChild(e);setTimeout(()=>e.remove(),1300)}
 
 function initFirstVisitCoach(){
