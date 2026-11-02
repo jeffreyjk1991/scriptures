@@ -12,7 +12,7 @@ function renderBatch(reset=false){if(reset){$("#feed").innerHTML="";state.batch=
   <p class="passage">${textFor(p)}</p><p class="citation">${p.citation}</p><p class="source">${lang.label} · ${lang.source}</p>
 </div>
 <div class="actions">
-<button class="action" onclick="toggleSave(${p.id})">${state.saved.includes(p.id)?"♥":"♡"}<small>Save</small></button>
+<button class="action" data-save-id="${p.id}" onclick="toggleSave(${p.id})">${state.saved.includes(p.id)?"♥":"♡"}<small>Save</small></button>
 <button class="action" onclick="openStudy(${p.id})">▣<small>Study</small></button>
 <button class="action" onclick="sharePassage(${p.id})">↥<small>Share</small></button>
 <button class="action" onclick="speakPassage(${p.id})">◖<small>Listen</small></button>
