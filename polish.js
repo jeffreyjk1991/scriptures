@@ -1,9 +1,65 @@
 (()=>{state.activeId=null;
+const feed=$("#feed");
 const activePassage=()=>passages.find(p=>p.id===Number(state.activeId))||sourceList()[0];
-window.updateHeader=function(){const label=state.filter==="all"?"All":tradition(state.filter).name;$("#filterBtn").textContent=label;const p=activePassage();$("#langBtn").textContent=p?language(p.tradition).short:"EN";$("#langBtn").title=p?tradition(p.tradition).name+" language":"Language"};
-window.openLanguage=function(){const p=activePassage();if(!p)return;const t=tradition(p.tradition),cur=language(p.tradition);sheet('<div class="sheet-head"><h2>'+t.name+' language</h2><button class="close" onclick="closeSheet()" aria-label="Close">×</button></div>'+t.languages.map(l=>'<button class="choice" onclick="setLanguage(\''+t.slug+'\',\''+l.key+'\','+p.id+')"><div class="choice-main"><b>'+l.label+'</b><span>'+l.source+'</span></div><div class="check">'+(cur.key===l.key?'●':'○')+'</div></button>').join(''))};
-window.setLanguage=function(slug,key,keepId){state.langs[slug]=key;localStorage.setItem("ws-langs",JSON.stringify(state.langs));closeSheet();state.activeId=Number(keepId);renderBatch(true);setTimeout(()=>{document.querySelector('[data-id="'+keepId+'"]')?.scrollIntoView({block:"start"});updateHeader()},0);renderSaved();toast("Language updated")};
-window.toggleSave=function(id){state.saved=state.saved.includes(id)?state.saved.filter(x=>x!==id):[...state.saved,id];localStorage.setItem("ws-saved",JSON.stringify(state.saved));document.querySelectorAll('[data-save-id="'+id+'"]').forEach(btn=>{btn.childNodes[0].nodeValue=state.saved.includes(id)?"♥":"♡"});renderSaved();toast(state.saved.includes(id)?"Saved":"Removed")};
-const feed=$("#feed");let ticking=false;feed.addEventListener("scroll",()=>{if(ticking)return;ticking=true;requestAnimationFrame(()=>{ticking=false;const c=feed.getBoundingClientRect().top+feed.clientHeight/2;let best=null,d=Infinity;document.querySelectorAll(".slide").forEach(s=>{const r=s.getBoundingClientRect(),x=Math.abs((r.top+r.height/2)-c);if(x<d){d=x;best=s}});if(best){state.activeId=Number(best.dataset.id);updateHeader()}})});
+
+window.updateHeader=function(){
+  const label=state.filter==="all"?"All":tradition(state.filter).name;
+  $("#filterBtn").textContent=label;
+  const p=activePassage();
+  $("#langBtn").textContent=p?language(p.tradition).short:"EN";
+  $("#langBtn").title=p?tradition(p.tradition).name+" language":"Language";
+};
+
+window.openLanguage=function(){
+  const p=activePassage(); if(!p)return;
+  const t=tradition(p.tradition),cur=language(p.tradition);
+  sheet('<div class="sheet-head"><h2>'+t.name+' language</h2><button class="close" onclick="closeSheet()" aria-label="Close">×</button></div>'+
+    t.languages.map(l=>'<button class="choice" onclick="setLanguage(\''+t.slug+'\',\''+l.key+'\','+p.id+')"><div class="choice-main"><b>'+l.label+'</b><span>'+l.source+'</span></div><div class="check">'+(cur.key===l.key?'●':'○')+'</div></button>').join(''));
+};
+
+window.setLanguage=function(slug,key,keepId){
+  state.langs[slug]=key;localStorage.setItem("ws-langs",JSON.stringify(state.langs));
+  closeSheet();state.activeId=Number(keepId);renderBatch(true);
+  setTimeout(()=>{document.querySelector('[data-id="'+keepId+'"]')?.scrollIntoView({block:"start"});markCurrent();updateHeader()},0);
+  renderSaved();toast("Language updated");
+};
+
+window.toggleSave=function(id){
+  state.saved=state.saved.includes(id)?state.saved.filter(x=>x!==id):[...state.saved,id];
+  localStorage.setItem("ws-saved",JSON.stringify(state.saved));
+  document.querySelectorAll('[data-save-id="'+id+'"]').forEach(btn=>{btn.childNodes[0].nodeValue=state.saved.includes(id)?"♥":"♡"});
+  renderSaved();toast(state.saved.includes(id)?"Saved":"Removed");
+};
+
+function markCurrent(){
+  const center=feed.getBoundingClientRect().top+feed.clientHeight/2;
+  let best=null,d=Infinity;
+  document.querySelectorAll(".slide").forEach(s=>{
+    const r=s.getBoundingClientRect(),dist=Math.abs((r.top+r.height/2)-center);
+    if(dist<d){d=dist;best=s}
+  });
+  document.querySelectorAll(".slide").forEach(s=>s.classList.toggle("current",s===best));
+  if(best){state.activeId=Number(best.dataset.id);updateHeader()}
+}
+let ticking=false;
+feed.addEventListener("scroll",()=>{
+  feed.classList.add("has-scrolled");
+  if(ticking)return;ticking=true;
+  requestAnimationFrame(()=>{ticking=false;markCurrent()});
+},{passive:true});
+
+/* Keyboard feels natural on desktop while touch stays native */
+window.addEventListener("keydown",e=>{
+  if(!$("#home").classList.contains("active"))return;
+  if(!["ArrowDown","ArrowUp","PageDown","PageUp"].includes(e.key))return;
+  e.preventDefault();
+  const slides=[...document.querySelectorAll(".slide")];
+  const current=slides.findIndex(s=>s.classList.contains("current"));
+  const dir=(e.key==="ArrowDown"||e.key==="PageDown")?1:-1;
+  const next=slides[Math.max(0,Math.min(slides.length-1,(current<0?0:current)+dir))];
+  next?.scrollIntoView({behavior:"smooth",block:"start"});
+});
+
 $("#langBtn").onclick=openLanguage;
+setTimeout(markCurrent,60);
 })();
