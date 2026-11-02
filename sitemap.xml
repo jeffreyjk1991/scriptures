@@ -8,4 +8,8 @@
 <url><loc>https://wisdom-scroll.vercel.app/guide-bhagavad-gita</loc><priority>0.8</priority></url>
 <url><loc>https://wisdom-scroll.vercel.app/guide-quran</loc><priority>0.8</priority></url>
 <url><loc>https://wisdom-scroll.vercel.app/guide-dhammapada</loc><priority>0.8</priority></url>
+<url><loc>https://wisdom-scroll.vercel.app/guide-bible</loc><priority>0.8</priority></url>
+<url><loc>https://wisdom-scroll.vercel.app/guide-tanakh</loc><priority>0.8</priority></url>
+<url><loc>https://wisdom-scroll.vercel.app/guide-guru-granth-sahib</loc><priority>0.8</priority></url>
+<url><loc>https://wisdom-scroll.vercel.app/guide-tao-te-ching</loc><priority>0.8</priority></url>
 </urlset>
