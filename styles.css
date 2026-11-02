@@ -1576,3 +1576,10 @@ button:focus-visible,a:focus-visible{
 /* Intuitive Study action icon */
 .study-glyph{color:rgba(255,255,255,.86)}
 .study-glyph path{fill:none!important;stroke:currentColor!important;stroke-width:1.55;stroke-linecap:round;stroke-linejoin:round}
+
+
+/* Action rail positioning: sit slightly lower, closer to the bottom controls */
+.actions{bottom:89px}
+@media (min-width:900px){
+  .actions{bottom:102px}
+}
