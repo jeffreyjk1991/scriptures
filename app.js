@@ -138,11 +138,8 @@ function initFirstVisitCoach(){
       <i>↗</i>
     </div>
     <div class="coach-scroll-tip">
-      <div class="coach-swipe">
-        <span></span><span></span>
-      </div>
-      <strong>Swipe up to explore</strong>
-      <small>Move through scripture one passage at a time</small>
+      <span class="coach-minimal-arrow"></span>
+      <strong>Swipe up</strong>
     </div>`;
   document.querySelector(".app")?.appendChild(coach);
   filterBtn.classList.add("coach-filter-pulse");
