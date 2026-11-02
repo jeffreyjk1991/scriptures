@@ -4,8 +4,8 @@
   "description": "Every tradition. One scroll.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#fbfbfa",
-  "theme_color": "#fbfbfa",
+  "background_color": "#9ca0a3",
+  "theme_color": "#9ca0a3",
   "icons": [
     {
       "src": "/favicon.svg",
