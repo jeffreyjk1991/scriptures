@@ -1,8 +1,8 @@
 {
-  "name": "WisdomScroll",
-  "short_name": "WisdomScroll",
-  "description": "Every tradition. One scroll.",
-  "start_url": "/",
+  "name": "Scroll My Faith",
+  "short_name": "ScrollMyFaith",
+  "description": "Every tradition. One scroll. Read scripture across faiths.",
+  "start_url": "https://www.scrollmyfaith.com/",
   "display": "standalone",
   "background_color": "#9ca0a3",
   "theme_color": "#9ca0a3",
