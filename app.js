@@ -325,13 +325,13 @@ function syncSeed(){
   }
 }
 applyTextSize();renderYou();
-if(state.hadSeenHistory){
+const hasCustomFeed=state.filter!=="all"||state.topic||state.interests.traditions.length||state.interests.topics.length||Object.keys(state.langs).some(k=>state.langs[k]!=="en");
+if(state.hadSeenHistory||hasCustomFeed){
   renderBatch(true,FEED_BATCH_SIZE);
   updateHeader();
 }else{
   syncSeed();
   updateHeader();
-  if(state.filter!=="all"||state.topic||state.interests.traditions.length||state.interests.topics.length||Object.keys(state.langs).some(k=>state.langs[k]!=="en"))renderBatch(true,FEED_BATCH_SIZE);
-  else ensureRunway();
+  ensureRunway();
 }
 const deep=passageParam;if(deep&&passages.some(p=>p.id===Number(deep)))setTimeout(()=>jumpTo(Number(deep)),50);else setTimeout(initFirstVisitCoach,550);
