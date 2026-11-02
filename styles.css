@@ -1583,3 +1583,10 @@ button:focus-visible,a:focus-visible{
 @media (min-width:900px){
   .actions{bottom:102px}
 }
+
+
+/* Lower action rail slightly more */
+.actions{bottom:74px}
+@media (min-width:900px){
+  .actions{bottom:86px}
+}
