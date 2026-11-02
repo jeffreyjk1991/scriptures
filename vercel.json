@@ -1,1 +1,1 @@
-{"cleanUrls":true,"trailingSlash":false,"redirects":[{"source":"/:path*","has":[{"type":"host","value":"wisdom-scroll.vercel.app"}],"destination":"https://www.scrollmyfaith.com/:path*","permanent":true}]}
+{"cleanUrls":true,"trailingSlash":false,"redirects":[{"source":"/:path*","has":[{"type":"host","value":"wisdom-scroll.vercel.app"}],"destination":"https://www.scrollmyfaith.com/:path*","permanent":true}],"rewrites":[{"source":"/verse/:id","destination":"/?passage=:id"}]}

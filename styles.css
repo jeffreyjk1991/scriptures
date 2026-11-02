@@ -1508,3 +1508,67 @@ button:focus-visible,a:focus-visible{
   .content-page,.seo-shell{max-width:1220px}
   .article-shell{max-width:1120px}
 }
+
+
+/* Verse sharing + study detail polish */
+.action-glyph{
+  width:25px;
+  height:25px;
+  display:block;
+  overflow:visible;
+}
+.action-glyph path{
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.65;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+.action-glyph path:first-child{
+  fill:currentColor;
+  stroke:currentColor;
+}
+.listen-glyph{color:rgba(255,255,255,.86)}
+.study-section{
+  padding:13px 0 15px;
+  border-bottom:1px solid rgba(255,255,255,.075);
+}
+.study-section:last-of-type{border-bottom:0}
+.study-section p{
+  margin:7px 0 0;
+  color:rgba(255,255,255,.68);
+  font-size:13px;
+  line-height:1.62;
+}
+.study-section strong{
+  color:rgba(255,255,255,.88);
+  font-weight:650;
+}
+.study-label{
+  color:rgba(255,255,255,.43);
+  font-size:9px;
+  font-weight:700;
+  letter-spacing:.13em;
+  text-transform:uppercase;
+}
+.study-label-themes{margin:17px 0 10px}
+.study-meta{
+  display:grid;
+  gap:4px;
+  margin-top:19px;
+  padding-top:15px;
+  border-top:1px solid rgba(255,255,255,.075);
+}
+.study-meta span{
+  color:rgba(255,255,255,.42);
+  font-size:9px;
+  font-weight:700;
+  letter-spacing:.11em;
+  text-transform:uppercase;
+}
+.study-meta b{
+  color:rgba(255,255,255,.70);
+  font-size:11px;
+  font-weight:550;
+  line-height:1.4;
+}

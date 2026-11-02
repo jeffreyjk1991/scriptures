@@ -4,6 +4,8 @@ const feed=$("#feed");
 const FEED_BATCH_SIZE=28;
 const PRELOAD_SCREENS=9;
 const params=new URLSearchParams(location.search);
+const versePathMatch=location.pathname.match(/^\/verse\/(\d+)\/?$/);
+const passageParam=params.get("passage")||(versePathMatch?versePathMatch[1]:null);
 const traditionParam=params.get("tradition");
 const topicParam=params.get("topic");
 const traditionMap={bible:"christianity",quran:"islam","bhagavad-gita":"hinduism",dhammapada:"buddhism",tanakh:"judaism","guru-granth-sahib":"sikhism","tao-te-ching":"taoism"};
@@ -63,7 +65,7 @@ function passageMarkup(p){
     <button class="action" data-save-id="${p.id}" onclick="toggleSave(${p.id})" aria-label="Save ${p.citation}">${state.saved.includes(p.id)?"♥":"♡"}<small>Save</small></button>
     <button class="action" onclick="openStudy(${p.id})" aria-label="Study ${p.citation}">▣<small>Study</small></button>
     <button class="action" onclick="sharePassage(${p.id})" aria-label="Share ${p.citation}">↥<small>Share</small></button>
-    <button class="action" onclick="speakPassage(${p.id})" aria-label="Listen to ${p.citation}">◖<small>Listen</small></button>
+    <button class="action" onclick="speakPassage(${p.id})" aria-label="Listen to ${p.citation}"><svg class="action-glyph listen-glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4h4l5 4V6L8 10H4Z"></path><path d="M16 9.2c1 .8 1.6 1.7 1.6 2.8s-.6 2-1.6 2.8"></path><path d="M18.6 6.8c1.8 1.5 2.9 3.2 2.9 5.2s-1.1 3.7-2.9 5.2"></path></svg><small>Listen</small></button>
   </div><div class="scroll-hint">swipe up</div>`;
 }
 function renderBatch(reset=false,count=FEED_BATCH_SIZE,firstId=null){
@@ -92,10 +94,45 @@ function updateHeader(){const label=state.topic?state.topic.charAt(0).toUpperCas
 function openLanguage(){const p=activePassage();if(!p)return;const t=tradition(p.tradition),cur=language(p.tradition);sheet(`<div class="sheet-head"><h2>${t.name} language</h2><button class="close" onclick="closeSheet()">×</button></div>${t.languages.map(l=>`<button class="choice" onclick="setLanguage('${t.slug}','${l.key}',${p.id})"><div class="choice-main"><b>${l.label}</b><span>${l.source}</span></div><div class="check">${cur.key===l.key?"●":"○"}</div></button>`).join("")}`)}
 function setLanguage(slug,key,keepId){state.langs[slug]=key;localStorage.setItem("ws-langs",JSON.stringify(state.langs));closeSheet();state.activeId=Number(keepId);renderBatch(true,FEED_BATCH_SIZE,keepId);feed.scrollTop=0;renderYou();toast("Language updated")}
 function toggleSave(id){state.saved=state.saved.includes(id)?state.saved.filter(x=>x!==id):[...state.saved,id];localStorage.setItem("ws-saved",JSON.stringify(state.saved));document.querySelectorAll('[data-save-id="'+id+'"]').forEach(btn=>btn.childNodes[0].nodeValue=state.saved.includes(id)?"♥":"♡");renderYou();toast(state.saved.includes(id)?"Saved":"Removed")}
-function openStudy(id){const p=passages.find(x=>x.id===id),t=tradition(p.tradition),l=language(p.tradition);sheet(`<div class="study"><div class="sheet-head"><div><b>${p.citation}</b><div class="source">${t.faith} · ${l.label}</div></div><button class="close" onclick="closeSheet()">×</button></div><h3>Context</h3><p>${p.context}</p><div class="tag-row">${p.topics.map(x=>`<span>${x}</span>`).join("")}</div><p class="source" style="margin-top:18px">Text source: ${l.source}</p></div>`)}
+function openStudy(id){
+  const p=passages.find(x=>x.id===id),t=tradition(p.tradition),l=language(p.tradition);
+  const themes=p.topics.map(x=>x.charAt(0).toUpperCase()+x.slice(1));
+  const themeText=themes.length>1?themes.slice(0,-1).join(", ")+" and "+themes[themes.length-1]:themes[0]||"reflection";
+  sheet(`<div class="study">
+    <div class="sheet-head"><div><b>${p.citation}</b><div class="source">${t.name} · ${t.faith}</div></div><button class="close" onclick="closeSheet()">×</button></div>
+    <h3>Context</h3>
+    <div class="study-section">
+      <div class="study-label">Background</div>
+      <p>${p.context}</p>
+    </div>
+    <div class="study-section">
+      <div class="study-label">What to notice</div>
+      <p>This passage brings together themes of ${themeText}. Read it as part of its wider tradition, not only as an isolated quote, and notice what it asks the reader to trust, practice, release, or understand.</p>
+    </div>
+    <div class="study-section">
+      <div class="study-label">Where it comes from</div>
+      <p><strong>${p.citation}</strong> is presented here from ${t.name}, within ${t.faith}. You are reading it in ${l.label} using ${l.source}.</p>
+    </div>
+    <div class="study-label study-label-themes">Themes</div>
+    <div class="tag-row">${p.topics.map(x=>`<span>${x}</span>`).join("")}</div>
+    <div class="study-meta"><span>Text source</span><b>${l.source}</b></div>
+  </div>`);
+}
 function voiceFor(locale){const voices=speechSynthesis.getVoices(),base=locale.toLowerCase().split("-")[0];return voices.find(v=>v.lang.toLowerCase()===locale.toLowerCase())||voices.find(v=>v.lang.toLowerCase().startsWith(base))||null}
 function speakPassage(id){const p=passages.find(x=>x.id===id),l=language(p.tradition);if(!("speechSynthesis" in window)){toast("Audio is not supported on this device");return}speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(textFor(p));u.lang=l.locale;u.rate=state.audioRate;const v=voiceFor(l.locale);if(v)u.voice=v;speechSynthesis.speak(u);toast("Playing in "+l.label)}
-async function sharePassage(id){const p=passages.find(x=>x.id===id),v=textFor(p)+" — "+p.citation;try{if(navigator.share)await navigator.share({title:p.citation,text:v,url:location.origin+"/?passage="+id});else{await navigator.clipboard.writeText(v+"\n"+location.origin+"/?passage="+id);toast("Copied")}}catch{}}
+function passageShareUrl(id){
+  const canonical=(location.hostname==="scrollmyfaith.com"||location.hostname==="www.scrollmyfaith.com")?location.origin:"https://www.scrollmyfaith.com";
+  return canonical+"/verse/"+Number(id);
+}
+async function sharePassage(id){
+  const p=passages.find(x=>x.id===id);
+  if(!p)return;
+  const url=passageShareUrl(id),v=textFor(p)+" — "+p.citation;
+  try{
+    if(navigator.share)await navigator.share({title:p.citation+" · Scroll My Faith",text:v,url});
+    else{await navigator.clipboard.writeText(v+"\n"+url);toast("Verse link copied")}
+  }catch{}
+}
 function jumpTo(id){state.filter="all";state.topic=null;setView("home");updateHeader();renderBatch(true,FEED_BATCH_SIZE,id);feed.scrollTop=0}
 function renderYou(){
   const savedCount=$("#savedCount");
@@ -215,4 +252,4 @@ function syncSeed(){
 applyTextSize();renderYou();syncSeed();updateHeader();
 if(state.filter!=="all"||state.topic||state.interests.traditions.length||state.interests.topics.length||Object.keys(state.langs).some(k=>state.langs[k]!=="en"))renderBatch(true,FEED_BATCH_SIZE);
 else ensureRunway();
-const deep=params.get("passage");if(deep)setTimeout(()=>jumpTo(Number(deep)),50);else setTimeout(initFirstVisitCoach,550);
+const deep=passageParam;if(deep&&passages.some(p=>p.id===Number(deep)))setTimeout(()=>jumpTo(Number(deep)),50);else setTimeout(initFirstVisitCoach,550);
