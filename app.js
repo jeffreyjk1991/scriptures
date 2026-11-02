@@ -1,43 +1,87 @@
 const {traditions,passages,topics}=window.WS_DATA;
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
-const state={filter:"all",langs:JSON.parse(localStorage.getItem("ws-langs")||"{}"),saved:JSON.parse(localStorage.getItem("ws-saved")||"[]"),batch:0};
+const state={
+  filter:"all",
+  langs:JSON.parse(localStorage.getItem("ws-langs")||"{}"),
+  saved:JSON.parse(localStorage.getItem("ws-saved")||"[]"),
+  interests:JSON.parse(localStorage.getItem("ws-interests")||'{"traditions":[],"topics":[]}'),
+  textSize:localStorage.getItem("ws-text-size")||"default",
+  audioRate:Number(localStorage.getItem("ws-audio-rate")||"0.95"),
+  batch:0,activeId:null
+};
 const tradition=s=>traditions.find(t=>t.slug===s);
-const language=(slug)=>{const t=tradition(slug);const key=state.langs[slug]||"en";return t.languages.find(l=>l.key===key)||t.languages[0]};
+const language=slug=>{const t=tradition(slug),key=state.langs[slug]||"en";return t.languages.find(l=>l.key===key)||t.languages[0]};
 const textFor=p=>p.text[language(p.tradition).key]||p.text.en;
 function shuffled(list){const a=[...list];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
-function sourceList(){return state.filter==="all"?passages:passages.filter(p=>p.tradition===state.filter)}
-function renderBatch(reset=false){if(reset){$("#feed").innerHTML="";state.batch=0}const list=shuffled(sourceList());const frag=document.createDocumentFragment();list.forEach((p,i)=>{const t=tradition(p.tradition),lang=language(p.tradition),slide=document.createElement("section");slide.className="slide";slide.dataset.id=p.id;slide.dataset.batch=state.batch;slide.innerHTML=`
-<div class="passage-wrap" dir="${["ar","ur","he"].includes(lang.key)?"rtl":"ltr"}">
-  <div class="eyebrow"><span class="symbol">${t.symbol}</span><span>${t.name} · ${t.faith}</span></div>
-  <p class="passage">${textFor(p)}</p><p class="citation">${p.citation}</p><p class="source">${lang.label} · ${lang.source}</p>
-</div>
-<div class="actions">
-<button class="action" data-save-id="${p.id}" onclick="toggleSave(${p.id})">${state.saved.includes(p.id)?"♥":"♡"}<small>Save</small></button>
-<button class="action" onclick="openStudy(${p.id})">▣<small>Study</small></button>
-<button class="action" onclick="sharePassage(${p.id})">↥<small>Share</small></button>
-<button class="action" onclick="speakPassage(${p.id})">◖<small>Listen</small></button>
-</div><div class="scroll-hint">scroll for more</div>`;frag.appendChild(slide)});$("#feed").appendChild(frag);state.batch++}
-let loading=false;$("#feed").addEventListener("scroll",()=>{const f=$("#feed");if(!loading&&f.scrollTop+f.clientHeight>f.scrollHeight-f.clientHeight*2){loading=true;renderBatch(false);setTimeout(()=>loading=false,150)}});
-function setView(id){$$(".view").forEach(v=>v.classList.toggle("active",v.id===id));$$(".nav-btn").forEach(b=>b.classList.toggle("active",b.dataset.view===id));if(id==="saved")renderSaved();if(id==="search")runSearch($("#q").value||"")}
+function sourceList(){
+  let list=state.filter==="all"?passages:passages.filter(p=>p.tradition===state.filter);
+  if(state.filter==="all"&&(state.interests.traditions.length||state.interests.topics.length)){
+    const preferred=list.filter(p=>state.interests.traditions.includes(p.tradition)||p.topics.some(t=>state.interests.topics.includes(t)));
+    if(preferred.length) list=[...preferred,...list.filter(p=>!preferred.includes(p))];
+  }
+  return list;
+}
+function renderBatch(reset=false){
+  if(reset){$("#feed").innerHTML="";state.batch=0}
+  const list=shuffled(sourceList());
+  const frag=document.createDocumentFragment();
+  list.forEach(p=>{
+    const t=tradition(p.tradition),lang=language(p.tradition),slide=document.createElement("section");
+    slide.className="slide";slide.dataset.id=p.id;slide.dataset.batch=state.batch;
+    slide.innerHTML=`<div class="passage-wrap" dir="${["ar","ur","he"].includes(lang.key)?"rtl":"ltr"}">
+      <div class="eyebrow"><span class="symbol">${t.symbol}</span><span>${t.name} · ${t.faith}</span></div>
+      <p class="passage">${textFor(p)}</p><p class="citation">${p.citation}</p><p class="source">${lang.label} · ${lang.source}</p>
+    </div>
+    <div class="actions">
+      <button class="action" data-save-id="${p.id}" onclick="toggleSave(${p.id})">${state.saved.includes(p.id)?"♥":"♡"}<small>Save</small></button>
+      <button class="action" onclick="openStudy(${p.id})">▣<small>Study</small></button>
+      <button class="action" onclick="sharePassage(${p.id})">↥<small>Share</small></button>
+      <button class="action" onclick="speakPassage(${p.id})">◖<small>Listen</small></button>
+    </div><div class="scroll-hint">swipe up</div>`;
+    frag.appendChild(slide);
+  });
+  $("#feed").appendChild(frag);state.batch++;setTimeout(markCurrent,20);
+}
+let loading=false;
+$("#feed").addEventListener("scroll",()=>{const f=$("#feed");f.classList.add("has-scrolled");if(!loading&&f.scrollTop+f.clientHeight>f.scrollHeight-f.clientHeight*2){loading=true;renderBatch(false);setTimeout(()=>loading=false,120)}},{passive:true});
+function setView(id){$$(".view").forEach(v=>v.classList.toggle("active",v.id===id));$$(".nav-btn").forEach(b=>b.classList.toggle("active",b.dataset.view===id));if(id==="you")renderYou()}
 $$(".nav-btn").forEach(b=>b.onclick=()=>setView(b.dataset.view));
 function sheet(content){$("#modal").innerHTML=`<div class="overlay" onclick="closeSheet()"><div class="sheet" onclick="event.stopPropagation()"><div class="grab"></div>${content}</div></div>`}
 function closeSheet(){$("#modal").innerHTML=""}
-function openFilter(){sheet(`<div class="sheet-head"><h2>Read</h2><button class="close" onclick="closeSheet()">×</button></div>${[{slug:"all",name:"All traditions",faith:"Mixed feed",symbol:"∞"},...traditions].map(t=>`<button class="choice" onclick="chooseFilter('${t.slug}')"><div class="choice-icon">${t.symbol}</div><div class="choice-main"><b>${t.name}</b><span>${t.faith}</span></div><div class="check">${state.filter===t.slug?"✓":""}</div></button>`).join("")}`)}
+function openFilter(){sheet(`<div class="sheet-head"><h2>Choose tradition</h2><button class="close" onclick="closeSheet()">×</button></div>${[{slug:"all",name:"All traditions",faith:"Mixed feed",symbol:"∞"},...traditions].map(t=>`<button class="choice" onclick="chooseFilter('${t.slug}')"><div class="choice-icon">${t.symbol}</div><div class="choice-main"><b>${t.name}</b><span>${t.faith}</span></div><div class="check">${state.filter===t.slug?"✓":""}</div></button>`).join("")}`)}
 function chooseFilter(slug){state.filter=slug;closeSheet();updateHeader();renderBatch(true)}
-function updateHeader(){const label=state.filter==="all"?"All":tradition(state.filter).name;$("#filterBtn").textContent=label;const first=sourceList()[0];$("#langBtn").textContent=first?language(first.tradition).short:"EN"}
-function openLanguage(){const p=sourceList()[0];if(!p)return;const t=tradition(p.tradition),cur=language(p.tradition);sheet(`<div class="sheet-head"><h2>${t.name} language</h2><button class="close" onclick="closeSheet()">×</button></div>${t.languages.map(l=>`<button class="choice" onclick="setLanguage('${t.slug}','${l.key}')"><div class="choice-main"><b>${l.label}</b><span>${l.source}</span></div><div class="check">${cur.key===l.key?"●":"○"}</div></button>`).join("")}`)}
-function setLanguage(slug,key){state.langs[slug]=key;localStorage.setItem("ws-langs",JSON.stringify(state.langs));closeSheet();updateHeader();renderBatch(true);renderSaved();toast("Language updated")}
-function toggleSave(id){state.saved=state.saved.includes(id)?state.saved.filter(x=>x!==id):[...state.saved,id];localStorage.setItem("ws-saved",JSON.stringify(state.saved));renderBatch(true);renderSaved();toast(state.saved.includes(id)?"Saved":"Removed")}
+function activePassage(){return passages.find(p=>p.id===Number(state.activeId))||sourceList()[0]}
+function updateHeader(){const label=state.filter==="all"?"All":tradition(state.filter).name;$("#filterBtn").textContent=label;const p=activePassage();$("#langBtn").textContent=p?language(p.tradition).short:"EN"}
+function openLanguage(){const p=activePassage();if(!p)return;const t=tradition(p.tradition),cur=language(p.tradition);sheet(`<div class="sheet-head"><h2>${t.name} language</h2><button class="close" onclick="closeSheet()">×</button></div>${t.languages.map(l=>`<button class="choice" onclick="setLanguage('${t.slug}','${l.key}',${p.id})"><div class="choice-main"><b>${l.label}</b><span>${l.source}</span></div><div class="check">${cur.key===l.key?"●":"○"}</div></button>`).join("")}`)}
+function setLanguage(slug,key,keepId){state.langs[slug]=key;localStorage.setItem("ws-langs",JSON.stringify(state.langs));closeSheet();state.activeId=Number(keepId);renderBatch(true);setTimeout(()=>document.querySelector('[data-id="'+keepId+'"]')?.scrollIntoView({block:"start"}),10);renderYou();toast("Language updated")}
+function toggleSave(id){state.saved=state.saved.includes(id)?state.saved.filter(x=>x!==id):[...state.saved,id];localStorage.setItem("ws-saved",JSON.stringify(state.saved));document.querySelectorAll('[data-save-id="'+id+'"]').forEach(btn=>btn.childNodes[0].nodeValue=state.saved.includes(id)?"♥":"♡");renderYou();toast(state.saved.includes(id)?"Saved":"Removed")}
 function openStudy(id){const p=passages.find(x=>x.id===id),t=tradition(p.tradition),l=language(p.tradition);sheet(`<div class="study"><div class="sheet-head"><div><b>${p.citation}</b><div class="source">${t.faith} · ${l.label}</div></div><button class="close" onclick="closeSheet()">×</button></div><h3>Context</h3><p>${p.context}</p><div class="tag-row">${p.topics.map(x=>`<span>${x}</span>`).join("")}</div><p class="source" style="margin-top:18px">Text source: ${l.source}</p></div>`)}
-function voiceFor(locale){const voices=speechSynthesis.getVoices();const base=locale.toLowerCase().split("-")[0];return voices.find(v=>v.lang.toLowerCase()===locale.toLowerCase())||voices.find(v=>v.lang.toLowerCase().startsWith(base))||null}
-function speakPassage(id){const p=passages.find(x=>x.id===id),l=language(p.tradition);if(!("speechSynthesis" in window)){toast("Audio is not supported on this device");return}speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(textFor(p));u.lang=l.locale;const v=voiceFor(l.locale);if(v)u.voice=v;u.rate=.9;speechSynthesis.speak(u);toast("Playing in "+l.label)}
+function voiceFor(locale){const voices=speechSynthesis.getVoices(),base=locale.toLowerCase().split("-")[0];return voices.find(v=>v.lang.toLowerCase()===locale.toLowerCase())||voices.find(v=>v.lang.toLowerCase().startsWith(base))||null}
+function speakPassage(id){const p=passages.find(x=>x.id===id),l=language(p.tradition);if(!("speechSynthesis" in window)){toast("Audio is not supported on this device");return}speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(textFor(p));u.lang=l.locale;u.rate=state.audioRate;const v=voiceFor(l.locale);if(v)u.voice=v;speechSynthesis.speak(u);toast("Playing in "+l.label)}
 async function sharePassage(id){const p=passages.find(x=>x.id===id),v=textFor(p)+" — "+p.citation;try{if(navigator.share)await navigator.share({title:p.citation,text:v,url:location.origin+"/?passage="+id});else{await navigator.clipboard.writeText(v+"\n"+location.origin+"/?passage="+id);toast("Copied")}}catch{}}
-function renderDiscover(){$("#discoverList").innerHTML=`<div class="row" onclick="chooseFromDiscover('all')"><div class="row-icon">∞</div><div class="row-copy"><b>All traditions</b><span>One continuous mixed feed</span></div>›</div>`+traditions.map(t=>`<div class="row" onclick="chooseFromDiscover('${t.slug}')"><div class="row-icon">${t.symbol}</div><div class="row-copy"><b>${t.name}</b><span>${t.faith}</span></div>›</div>`).join("")}
-function chooseFromDiscover(slug){state.filter=slug;setView("home");updateHeader();renderBatch(true)}
-function runSearch(q){q=(q||"").trim().toLowerCase();const found=passages.filter(p=>!q||p.citation.toLowerCase().includes(q)||p.topics.some(t=>t.includes(q))||Object.values(p.text).some(v=>v.toLowerCase().includes(q)));$("#searchResults").innerHTML=found.length?found.map(p=>{const t=tradition(p.tradition);return `<div class="row" onclick="jumpTo(${p.id})"><div class="row-icon">${t.symbol}</div><div class="row-copy"><b>${p.citation}</b><span>${textFor(p).slice(0,92)}${textFor(p).length>92?"…":""}</span></div>›</div>`}).join(""):`<div class="empty">No passages found.</div>`}
-function jumpTo(id){state.filter="all";setView("home");updateHeader();renderBatch(true);setTimeout(()=>document.querySelector('[data-id="'+id+'"]')?.scrollIntoView({behavior:"smooth"}),50)}
-function renderSaved(){const a=passages.filter(p=>state.saved.includes(p.id));$("#savedList").innerHTML=a.length?a.map(p=>{const t=tradition(p.tradition);return `<div class="row" onclick="jumpTo(${p.id})"><div class="row-icon">${t.symbol}</div><div class="row-copy"><b>${p.citation}</b><span>${textFor(p).slice(0,92)}${textFor(p).length>92?"…":""}</span></div>›</div>`}).join(""):`<div class="empty">Saved passages will appear here.</div>`}
+function jumpTo(id){state.filter="all";setView("home");updateHeader();renderBatch(true);setTimeout(()=>document.querySelector('[data-id="'+id+'"]')?.scrollIntoView({behavior:"smooth",block:"start"}),30)}
+function renderYou(){
+  $("#savedCount").textContent=state.saved.length;
+  const savedPassages=passages.filter(p=>state.saved.includes(p.id));
+  $("#savedList").innerHTML=savedPassages.length?savedPassages.map(p=>{const t=tradition(p.tradition);return `<button class="saved-item setting-link" onclick="jumpTo(${p.id})"><div class="saved-item-mark">${t.symbol}</div><div class="saved-item-copy"><b>${p.citation}</b><span>${textFor(p)}</span></div><i>›</i></button>`}).join(""):'<div class="saved-empty">Nothing saved yet. Tap ♡ on any passage.</div>';
+  $("#traditionInterests").innerHTML=traditions.map(t=>`<button class="interest-chip ${state.interests.traditions.includes(t.slug)?"active":""}" onclick="toggleInterest('traditions','${t.slug}')">${t.name}</button>`).join("");
+  $("#topicInterests").innerHTML=topics.map(t=>`<button class="interest-chip ${state.interests.topics.includes(t)?"active":""}" onclick="toggleInterest('topics','${t}')">${t}</button>`).join("");
+  $$("[data-text-size]").forEach(b=>b.classList.toggle("active",b.dataset.textSize===state.textSize));
+  $$("[data-audio-rate]").forEach(b=>b.classList.toggle("active",Number(b.dataset.audioRate)===state.audioRate));
+  const custom=Object.keys(state.langs).filter(k=>state.langs[k]&&state.langs[k]!=="en").length;$("#languageSummary").textContent=custom?custom+" scripture language preference"+(custom>1?"s":"")+" set":"English by default · set per scripture";
+}
+function toggleInterest(type,value){const a=state.interests[type],i=a.indexOf(value);if(i>=0)a.splice(i,1);else a.push(value);localStorage.setItem("ws-interests",JSON.stringify(state.interests));renderYou();if(state.filter==="all")renderBatch(true)}
+function applyTextSize(){document.body.classList.remove("text-size-small","text-size-large");if(state.textSize==="small")document.body.classList.add("text-size-small");if(state.textSize==="large")document.body.classList.add("text-size-large")}
+function openLanguageOverview(){sheet(`<div class="sheet-head"><h2>Scripture languages</h2><button class="close" onclick="closeSheet()">×</button></div>${traditions.map(t=>{const l=language(t.slug);return `<button class="choice" onclick="openLanguageFor('${t.slug}')"><div class="choice-icon">${t.symbol}</div><div class="choice-main"><b>${t.name}</b><span>${l.label}</span></div><div class="check">›</div></button>`}).join("")}`)}
+function openLanguageFor(slug){const t=tradition(slug),cur=language(slug);sheet(`<div class="sheet-head"><h2>${t.name} language</h2><button class="close" onclick="closeSheet()">×</button></div>${t.languages.map(l=>`<button class="choice" onclick="setLanguageFromYou('${slug}','${l.key}')"><div class="choice-main"><b>${l.label}</b><span>${l.source}</span></div><div class="check">${cur.key===l.key?"●":"○"}</div></button>`).join("")}`)}
+function setLanguageFromYou(slug,key){state.langs[slug]=key;localStorage.setItem("ws-langs",JSON.stringify(state.langs));closeSheet();renderYou();renderBatch(true);toast("Language updated")}
+function resetPreferences(){state.interests={traditions:[],topics:[]};state.textSize="default";state.audioRate=.95;localStorage.removeItem("ws-interests");localStorage.removeItem("ws-text-size");localStorage.removeItem("ws-audio-rate");applyTextSize();renderYou();renderBatch(true);toast("Preferences reset")}
+function clearSaved(){state.saved=[];localStorage.setItem("ws-saved","[]");renderYou();document.querySelectorAll("[data-save-id]").forEach(btn=>btn.childNodes[0].nodeValue="♡");toast("Saved passages cleared")}
+function markCurrent(){const feed=$("#feed"),center=feed.getBoundingClientRect().top+feed.clientHeight/2;let best=null,d=Infinity;document.querySelectorAll(".slide").forEach(s=>{const r=s.getBoundingClientRect(),dist=Math.abs((r.top+r.height/2)-center);if(dist<d){d=dist;best=s}});document.querySelectorAll(".slide").forEach(s=>s.classList.toggle("current",s===best));if(best){state.activeId=Number(best.dataset.id);updateHeader()}}
+$("#feed").addEventListener("scroll",()=>requestAnimationFrame(markCurrent),{passive:true});
+$("#filterBtn").onclick=openFilter;$("#langBtn").onclick=openLanguage;
+$("#textSizeControl").onclick=e=>{const b=e.target.closest("[data-text-size]");if(!b)return;state.textSize=b.dataset.textSize;localStorage.setItem("ws-text-size",state.textSize);applyTextSize();renderYou()};
+$("#audioRateControl").onclick=e=>{const b=e.target.closest("[data-audio-rate]");if(!b)return;state.audioRate=Number(b.dataset.audioRate);localStorage.setItem("ws-audio-rate",String(state.audioRate));renderYou()};
 function toast(msg){const e=document.createElement("div");e.className="toast";e.textContent=msg;document.body.appendChild(e);setTimeout(()=>e.remove(),1300)}
-$("#filterBtn").onclick=openFilter;$("#langBtn").onclick=openLanguage;$("#q").oninput=e=>runSearch(e.target.value);
-renderDiscover();renderSaved();runSearch("");updateHeader();renderBatch(true);
+applyTextSize();renderYou();updateHeader();renderBatch(true);
 const deep=new URLSearchParams(location.search).get("passage");if(deep)setTimeout(()=>jumpTo(Number(deep)),80);
