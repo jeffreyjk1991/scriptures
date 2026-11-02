@@ -1287,3 +1287,224 @@ button:focus-visible,a:focus-visible{
   .article-index a{grid-template-columns:1fr}
   .article-index span{display:none}
 }
+
+/* Desktop expansion: preserve mobile, use the full web canvas */
+@media (min-width:900px){
+  :root{--reader-h:calc(100dvh - 48px)}
+  body{padding:24px}
+
+  /* Main reader becomes a true desktop canvas instead of a phone column */
+  .app{
+    width:min(1180px,calc(100vw - 48px));
+    min-height:var(--reader-h);
+    border-radius:30px;
+    overflow:hidden;
+  }
+  .reader-header{
+    top:24px;
+    width:min(1180px,calc(100vw - 48px));
+    height:88px;
+    padding:12px 42px 10px;
+  }
+  .wordmark{
+    font-size:14px;
+    letter-spacing:.34em;
+  }
+  #filterBtn{max-width:180px}
+  .feed{height:var(--reader-h)}
+  .slide{
+    height:var(--reader-h);
+    min-height:var(--reader-h);
+    padding:122px 150px 126px 108px;
+  }
+  .passage-wrap{
+    max-width:650px;
+    margin:0 auto;
+  }
+  .passage{
+    font-size:clamp(42px,4.4vw,60px);
+    line-height:1.16;
+    letter-spacing:-.038em;
+  }
+  .eyebrow{
+    margin-bottom:30px;
+    font-size:10px;
+  }
+  .citation{
+    margin-top:32px;
+    font-size:11px;
+  }
+  .source{font-size:9.5px}
+  .actions{
+    right:38px;
+    bottom:118px;
+    gap:22px;
+  }
+  .action{
+    width:48px;
+    min-height:48px;
+    font-size:25px;
+  }
+  .action small{font-size:7.5px}
+  .scroll-hint{bottom:68px}
+
+  /* Navigation stays minimal, but no longer hugs the edges */
+  .bottom-nav{
+    bottom:24px;
+    width:min(1180px,calc(100vw - 48px));
+    height:68px;
+    grid-template-columns:120px 120px;
+    justify-content:center;
+    column-gap:110px;
+    padding:0 0 8px;
+  }
+  .nav-btn{font-size:8px}
+
+  /* First-visit hints track the wider reader */
+  .first-run-coach{
+    top:24px;
+    bottom:24px;
+    width:min(1180px,calc(100vw - 48px));
+  }
+  .coach-filter-tip{
+    top:70px;
+    right:42px;
+  }
+
+  /* You page gets a comfortable desktop reading width */
+  .you-minimal{
+    width:min(760px,100%);
+    margin:0 auto;
+    padding:68px 28px 110px;
+  }
+  .you-minimal-head{
+    padding-top:26px;
+    padding-bottom:58px;
+  }
+  .you-minimal-head h1{font-size:46px}
+  .you-menu-row{
+    min-height:78px;
+    grid-template-columns:44px 1fr auto 18px;
+  }
+
+  /* Bottom sheets feel like desktop panels while keeping the same surface */
+  .sheet{
+    width:min(680px,calc(100vw - 72px));
+    border-radius:26px 26px 0 0;
+    padding-left:28px;
+    padding-right:28px;
+  }
+  .saved-sheet-row .choice-main span{max-width:460px}
+
+  /* Deep pages use the width, but keep readable line lengths */
+  .content-page,.seo-shell{
+    max-width:1120px;
+    padding:44px 58px 104px;
+  }
+  .article-shell{
+    max-width:1040px;
+    padding:44px 58px 104px;
+  }
+  .content-page h1{
+    max-width:820px;
+    font-size:68px;
+  }
+  .content-page>p,
+  .content-page>h2,
+  .content-page>ul,
+  .content-page>ol{
+    max-width:760px;
+  }
+  .site-nav{
+    margin-bottom:62px;
+    gap:24px;
+  }
+  .seo-brand,.article-brand{margin-bottom:58px}
+  .seo-hero{
+    max-width:900px;
+    padding-top:12px;
+    padding-bottom:26px;
+  }
+  .seo-hero h1{
+    max-width:880px;
+    font-size:72px;
+  }
+  .seo-hero p{
+    max-width:760px;
+    font-size:16px;
+  }
+
+  /* Hubs become genuinely desktop layouts */
+  .seo-grid{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    column-gap:34px;
+    border-top:0;
+  }
+  .seo-card{
+    border-top:1px solid rgba(255,255,255,.10);
+    padding:22px 2px 24px;
+  }
+  .seo-card:first-child{border-top:1px solid rgba(255,255,255,.10)}
+  .seo-card h2,.seo-card h3{font-size:17px}
+  .seo-card p{font-size:12px}
+
+  /* Scripture quote collections spread into two calm columns */
+  .verse-list{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    column-gap:42px;
+    border-top:0;
+  }
+  .verse-block{
+    border-top:1px solid rgba(255,255,255,.10);
+    padding:28px 2px;
+  }
+  .verse-block:first-child{border-top:1px solid rgba(255,255,255,.10)}
+  .verse-block blockquote{font-size:30px}
+
+  /* Articles get a wider editorial canvas without stretching body copy */
+  .article-hero{
+    max-width:900px;
+    padding-bottom:42px;
+  }
+  .article-hero h1{
+    max-width:900px;
+    font-size:72px;
+  }
+  .article-deck{
+    max-width:760px;
+    font-size:17px;
+  }
+  .article-body{
+    max-width:760px;
+    margin:0 auto;
+    padding-top:38px;
+  }
+  .article-index{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    column-gap:42px;
+    border-top:0;
+  }
+  .article-index a{
+    border-top:1px solid rgba(255,255,255,.10);
+    padding:24px 0;
+  }
+  .article-index h2{font-size:19px}
+}
+
+/* Very wide monitors: add breathing room without making text too long */
+@media (min-width:1400px){
+  .app,
+  .reader-header,
+  .bottom-nav,
+  .first-run-coach{
+    width:min(1320px,calc(100vw - 72px));
+  }
+  .slide{
+    padding-left:150px;
+    padding-right:190px;
+  }
+  .passage-wrap{max-width:720px}
+  .actions{right:52px}
+  .content-page,.seo-shell{max-width:1220px}
+  .article-shell{max-width:1120px}
+}
