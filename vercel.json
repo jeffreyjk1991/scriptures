@@ -1,1 +1,1 @@
-{"cleanUrls":true,"trailingSlash":false}
+{"cleanUrls":true,"trailingSlash":false,"redirects":[{"source":"/:path*","has":[{"type":"host","value":"wisdom-scroll.vercel.app"}],"destination":"https://www.scrollmyfaith.com/:path*","permanent":true}]}
