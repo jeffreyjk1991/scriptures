@@ -757,3 +757,115 @@ button:focus-visible,a:focus-visible{
   .coach-filter-pulse{animation:none}
 }
 
+/* Reels rail + seamless nav polish */
+/* Keep the approved borderless style, but move actions to an Instagram-style right rail. */
+.slide{
+  padding-right:68px;
+  padding-bottom:108px;
+}
+.passage-wrap{
+  max-width:342px;
+}
+
+/* Vertical right-side reel actions, still completely borderless. */
+.actions{
+  position:absolute;
+  z-index:4;
+  right:13px;
+  left:auto;
+  bottom:103px;
+  transform:none;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:18px;
+}
+.action{
+  width:44px;
+  min-height:44px;
+  padding:0;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+  color:rgba(255,255,255,.84);
+  font-size:24px;
+  text-shadow:0 2px 16px rgba(0,0,0,.14);
+}
+.action small{
+  display:block;
+  margin-top:3px;
+  color:rgba(255,255,255,.54);
+  font-size:7px;
+  font-weight:560;
+  letter-spacing:.03em;
+  text-transform:none;
+}
+.action:active{
+  transform:scale(.92);
+  opacity:.58;
+}
+
+/* The nav has no visual surface at all; it is part of the reader background. */
+.bottom-nav{
+  height:66px;
+  padding:0 72px max(8px,env(safe-area-inset-bottom));
+  border:0;
+  background:transparent;
+  box-shadow:none;
+  backdrop-filter:none;
+  -webkit-backdrop-filter:none;
+}
+.nav-btn{
+  position:relative;
+  background:transparent;
+  box-shadow:none;
+  color:rgba(255,255,255,.40);
+}
+.nav-btn.active{
+  background:transparent;
+  box-shadow:none;
+  color:rgba(255,255,255,.92);
+}
+.nav-btn.active::after{
+  content:"";
+  position:absolute;
+  left:50%;
+  bottom:2px;
+  width:3px;
+  height:3px;
+  border-radius:50%;
+  transform:translateX(-50%);
+  background:rgba(255,255,255,.72);
+}
+
+/* Let the background continue visually beneath the navigation. */
+.view.active,
+#home,
+.feed{
+  background:transparent;
+}
+.slide::after{
+  background:
+    linear-gradient(180deg,rgba(0,0,0,.015),transparent 20%,transparent 86%,rgba(0,0,0,.02));
+}
+
+@media(max-width:370px){
+  .slide{
+    padding-right:58px;
+  }
+  .actions{
+    right:7px;
+    gap:15px;
+  }
+  .action{
+    width:42px;
+    min-height:42px;
+    font-size:22px;
+  }
+  .bottom-nav{
+    padding-left:58px;
+    padding-right:58px;
+  }
+}
+
