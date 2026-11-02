@@ -1,3 +1,3 @@
 User-agent: *
 Allow: /
-Sitemap: https://wisdom-scroll-chattopaper.vercel.app/sitemap.xml
+Sitemap: https://wisdom-scroll.vercel.app/sitemap.xml
