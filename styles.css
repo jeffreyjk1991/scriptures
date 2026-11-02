@@ -1590,3 +1590,7 @@ button:focus-visible,a:focus-visible{
 @media (min-width:900px){
   .actions{bottom:86px}
 }
+
+/* Familiar share-from-box action icon */
+.share-glyph{color:rgba(255,255,255,.86)}
+.share-glyph path{fill:none!important;stroke:currentColor!important;stroke-width:1.65;stroke-linecap:round;stroke-linejoin:round}
