@@ -25,7 +25,7 @@ button{cursor:pointer}
 .brand-mark{width:34px;height:34px;border-radius:11px;background:var(--ink);display:grid;place-items:center;flex:0 0 auto;box-shadow:0 6px 18px rgba(0,0,0,.08)}
 .brand-mark svg{width:22px;height:22px;fill:none;stroke:#fff;stroke-width:1.7;stroke-linejoin:round}
 .brand-copy{min-width:0}
-.wordmark{font-size:14px;font-weight:850;letter-spacing:-.03em;line-height:1}
+.wordmark{margin:0;font-size:14px;font-weight:850;letter-spacing:-.03em;line-height:1}
 .brand-subtitle{font-size:9px;color:#8a8781;margin-top:4px;white-space:nowrap;letter-spacing:.01em}
 .header-spacer{flex:1}
 .header-chip{border:1px solid var(--line);background:rgba(255,255,255,.9);height:34px;border-radius:999px;padding:0 12px;color:#2a2926;font-weight:720;font-size:12px;box-shadow:0 3px 14px rgba(0,0,0,.035);backdrop-filter:blur(14px)}
