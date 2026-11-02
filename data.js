@@ -3,23 +3,23 @@ window.WS_DATA = {
     {slug:"christianity", name:"Bible", faith:"Christianity", symbol:"✝", languages:[
       {key:"en",label:"English",short:"EN",locale:"en-US",source:"King James Version (1611)"},
       {key:"es",label:"Español",short:"ES",locale:"es-ES",source:"Reina-Valera (public domain)"},
-      {key:"hi",label:"हिन्दी",short:"HI",locale:"hi-IN",source:"WisdomScroll rendering — review before publication"}
+      {key:"hi",label:"हिन्दी",short:"HI",locale:"hi-IN",source:"Scroll My Faith rendering — review before publication"}
     ]},
     {slug:"islam", name:"Qur’an", faith:"Islam", symbol:"☾", languages:[
       {key:"en",label:"English",short:"EN",locale:"en-US",source:"Pickthall (1930)"},
       {key:"ar",label:"العربية",short:"AR",locale:"ar-SA",source:"Original Arabic"},
-      {key:"ur",label:"اردو",short:"UR",locale:"ur-PK",source:"WisdomScroll rendering — review before publication"},
-      {key:"hi",label:"हिन्दी",short:"HI",locale:"hi-IN",source:"WisdomScroll rendering — review before publication"}
+      {key:"ur",label:"اردو",short:"UR",locale:"ur-PK",source:"Scroll My Faith rendering — review before publication"},
+      {key:"hi",label:"हिन्दी",short:"HI",locale:"hi-IN",source:"Scroll My Faith rendering — review before publication"}
     ]},
     {slug:"hinduism", name:"Bhagavad Gita", faith:"Hinduism", symbol:"ॐ", languages:[
       {key:"en",label:"English",short:"EN",locale:"en-US",source:"Besant & Das (1905)"},
-      {key:"hi",label:"हिन्दी",short:"HI",locale:"hi-IN",source:"WisdomScroll rendering — review before publication"},
+      {key:"hi",label:"हिन्दी",short:"HI",locale:"hi-IN",source:"Scroll My Faith rendering — review before publication"},
       {key:"sa",label:"संस्कृत",short:"SA",locale:"sa-IN",source:"Original Sanskrit"}
     ]},
     {slug:"buddhism", name:"Dhammapada", faith:"Buddhism", symbol:"☸", languages:[
       {key:"en",label:"English",short:"EN",locale:"en-US",source:"F. Max Müller (1881)"},
       {key:"pi",label:"Pāli",short:"PI",locale:"pi",source:"Pāli text"},
-      {key:"hi",label:"हिन्दी",short:"HI",locale:"hi-IN",source:"WisdomScroll rendering — review before publication"}
+      {key:"hi",label:"हिन्दी",short:"HI",locale:"hi-IN",source:"Scroll My Faith rendering — review before publication"}
     ]},
     {slug:"judaism", name:"Tanakh", faith:"Judaism", symbol:"✡", languages:[
       {key:"en",label:"English",short:"EN",locale:"en-US",source:"JPS (1917)"},
@@ -28,7 +28,7 @@ window.WS_DATA = {
     {slug:"sikhism", name:"Guru Granth Sahib", faith:"Sikhism", symbol:"ੴ", languages:[
       {key:"en",label:"English",short:"EN",locale:"en-US",source:"Macauliffe (1909)"},
       {key:"pa",label:"ਪੰਜਾਬੀ",short:"PA",locale:"pa-IN",source:"Gurmukhi text"},
-      {key:"hi",label:"हिन्दी",short:"HI",locale:"hi-IN",source:"WisdomScroll rendering — review before publication"}
+      {key:"hi",label:"हिन्दी",short:"HI",locale:"hi-IN",source:"Scroll My Faith rendering — review before publication"}
     ]},
     {slug:"taoism", name:"Tao Te Ching", faith:"Taoism", symbol:"☯", languages:[
       {key:"en",label:"English",short:"EN",locale:"en-US",source:"James Legge (1891)"},
