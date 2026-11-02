@@ -119,6 +119,50 @@ $("#filterBtn").onclick=openFilter;$("#langBtn").onclick=openLanguage;
 $("#textSizeControl").onclick=e=>{const b=e.target.closest("[data-text-size]");if(!b)return;state.textSize=b.dataset.textSize;localStorage.setItem("ws-text-size",state.textSize);applyTextSize();renderYou()};
 $("#audioRateControl").onclick=e=>{const b=e.target.closest("[data-audio-rate]");if(!b)return;state.audioRate=Number(b.dataset.audioRate);localStorage.setItem("ws-audio-rate",String(state.audioRate));renderYou()};
 function toast(msg){const e=document.createElement("div");e.className="toast";e.textContent=msg;document.body.appendChild(e);setTimeout(()=>e.remove(),1300)}
+
+function initFirstVisitCoach(){
+  const key="ws-first-visit-coach-v1";
+  try{
+    if(localStorage.getItem(key))return;
+    localStorage.setItem(key,"1");
+  }catch{}
+  const filterBtn=$("#filterBtn");
+  if(!filterBtn||!feed)return;
+
+  const coach=document.createElement("div");
+  coach.className="first-run-coach";
+  coach.setAttribute("aria-hidden","true");
+  coach.innerHTML=`
+    <div class="coach-filter-tip">
+      <span>Filter traditions</span>
+      <i>↗</i>
+    </div>
+    <div class="coach-scroll-tip">
+      <div class="coach-swipe">
+        <span></span><span></span>
+      </div>
+      <strong>Swipe up to explore</strong>
+      <small>Move through scripture one passage at a time</small>
+    </div>`;
+  document.querySelector(".app")?.appendChild(coach);
+  filterBtn.classList.add("coach-filter-pulse");
+
+  requestAnimationFrame(()=>coach.classList.add("show"));
+
+  let closed=false;
+  const dismiss=()=>{
+    if(closed)return;
+    closed=true;
+    coach.classList.remove("show");
+    filterBtn.classList.remove("coach-filter-pulse");
+    setTimeout(()=>coach.remove(),320);
+  };
+  const onScroll=()=>{if(feed.scrollTop>18){dismiss();feed.removeEventListener("scroll",onScroll)}};
+  feed.addEventListener("scroll",onScroll,{passive:true});
+  filterBtn.addEventListener("click",dismiss,{once:true});
+  document.querySelector('[data-view="you"]')?.addEventListener("click",dismiss,{once:true});
+  setTimeout(dismiss,8500);
+}
 function syncSeed(){
   document.querySelectorAll("[data-save-id]").forEach(btn=>{const id=Number(btn.dataset.saveId);btn.childNodes[0].nodeValue=state.saved.includes(id)?"♥":"♡"});
   const slides=$$(".slide");if(slides.length){state.lastRenderedId=Number(slides[slides.length-1].dataset.id);state.activeId=Number(slides[0].dataset.id)}
@@ -126,4 +170,4 @@ function syncSeed(){
 applyTextSize();renderYou();syncSeed();updateHeader();
 if(state.filter!=="all"||state.topic||state.interests.traditions.length||state.interests.topics.length||Object.keys(state.langs).some(k=>state.langs[k]!=="en"))renderBatch(true,FEED_BATCH_SIZE);
 else ensureRunway();
-const deep=params.get("passage");if(deep)setTimeout(()=>jumpTo(Number(deep)),50);
+const deep=params.get("passage");if(deep)setTimeout(()=>jumpTo(Number(deep)),50);else setTimeout(initFirstVisitCoach,550);
