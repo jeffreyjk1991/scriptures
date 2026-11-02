@@ -1,7 +1,7 @@
 <!doctype html><html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>WisdomScroll — Every tradition. One scroll.</title>
-<meta name="description" content="A calm, endless scripture feed across Christianity, Islam, Hinduism, Buddhism, Judaism, Sikhism and Taoism, with language switching, audio, study context, search and saved passages.">
+<meta name="description" content="A calm, endless scripture feed across Christianity, Islam, Hinduism, Buddhism, Judaism, Sikhism and Taoism, with language switching, audio, study context and saved passages.">
 <link rel="canonical" href="https://wisdom-scroll.vercel.app/">
 <meta property="og:title" content="WisdomScroll — Every tradition. One scroll."><meta property="og:description" content="Scroll scripture and wisdom across the world's major traditions in one clean feed."><meta property="og:type" content="website"><meta property="og:url" content="https://wisdom-scroll.vercel.app/">
 <meta name="theme-color" content="#fbfbfa"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="WisdomScroll"><meta name="twitter:description" content="Every tradition. One scroll.">
@@ -12,7 +12,7 @@
 <header class="reader-header">
   <div class="brand-lockup" aria-label="WisdomScroll">
     <div class="brand-mark" aria-hidden="true">
-      <svg viewBox="0 0 32 32" role="img"><path d="M16 4c4.5 3.2 7 7.2 7 11.2 0 5.4-3 9.5-7 12.8-4-3.3-7-7.4-7-12.8C9 11.2 11.5 7.2 16 4Z"/><path d="M6.5 11.5c4.8.3 8.1 2 9.5 4.6 1.4-2.6 4.7-4.3 9.5-4.6-1.1 6.3-4.3 10.1-9.5 11.5-5.2-1.4-8.4-5.2-9.5-11.5Z"/></svg>
+      <svg viewBox="0 0 32 32"><path d="M16 4c4.5 3.2 7 7.2 7 11.2 0 5.4-3 9.5-7 12.8-4-3.3-7-7.4-7-12.8C9 11.2 11.5 7.2 16 4Z"/><path d="M6.5 11.5c4.8.3 8.1 2 9.5 4.6 1.4-2.6 4.7-4.3 9.5-4.6-1.1 6.3-4.3 10.1-9.5 11.5-5.2-1.4-8.4-5.2-9.5-11.5Z"/></svg>
     </div>
     <div class="brand-copy"><div class="wordmark">WisdomScroll</div><div class="brand-subtitle">Every tradition. One scroll.</div></div>
   </div>
@@ -22,8 +22,61 @@
 </header>
 <main id="feed" class="feed"></main>
 </section>
-<section id="discover" class="view"><div class="page-head"><h1>Discover</h1><p>Choose a tradition, or keep them together in one continuous feed.</p></div><div id="discoverList" class="list"></div><div class="list"><div class="row" onclick="location.href='/guides'"><div class="row-icon">↗</div><div class="row-copy"><b>Guides</b><span>Learn about scriptures, translations and traditions</span></div>›</div><div class="row" onclick="location.href='/about'"><div class="row-icon">i</div><div class="row-copy"><b>About WisdomScroll</b><span>How the product works and why it exists</span></div>›</div></div></section>
-<section id="search" class="view"><div class="page-head"><h1>Search</h1><p>Search across citations, topics and available languages.</p></div><div class="searchbox">⌕ <input id="q" aria-label="Search scripture" placeholder="Peace, grief, purpose…"></div><div id="searchResults" class="list"></div></section>
-<section id="saved" class="view"><div class="page-head"><h1>Saved</h1><p>Your saved passages stay on this device.</p></div><div id="savedList" class="list"></div></section>
-<nav class="bottom-nav"><button class="nav-btn active" data-view="home"><b>⌂</b>Home</button><button class="nav-btn" data-view="discover"><b>◈</b>Discover</button><button class="nav-btn" data-view="search"><b>⌕</b>Search</button><button class="nav-btn" data-view="saved"><b>▱</b>Saved</button></nav>
-</div><div id="modal"></div><script src="/data.js"></script><script src="/app.js"></script><script src="/polish.js"></script></body></html>
+
+<section id="you" class="view">
+  <div class="you-head">
+    <div class="you-kicker">Your reading</div>
+    <h1>You</h1>
+    <p>Shape the feed, keep what matters, and control how you read. No account required.</p>
+  </div>
+
+  <section class="settings-card">
+    <div class="settings-title"><div><h2>Saved</h2><p>Your personal library on this device.</p></div><span id="savedCount" class="count-badge">0</span></div>
+    <div id="savedList" class="saved-stack"></div>
+  </section>
+
+  <section class="settings-card">
+    <div class="settings-title"><div><h2>Interests</h2><p>These quietly shape your <strong>All</strong> feed. Leave everything unselected for the full mix.</p></div></div>
+    <h3>Traditions</h3>
+    <div id="traditionInterests" class="interest-chips"></div>
+    <h3>Themes</h3>
+    <div id="topicInterests" class="interest-chips"></div>
+  </section>
+
+  <section class="settings-card">
+    <div class="settings-title"><div><h2>Reading</h2><p>Comfort and audio preferences.</p></div></div>
+    <div class="setting-row">
+      <div><b>Text size</b><span>Change scripture size without changing the interface.</span></div>
+      <div class="segmented" id="textSizeControl">
+        <button data-text-size="small">A</button><button data-text-size="default">A</button><button data-text-size="large">A</button>
+      </div>
+    </div>
+    <div class="setting-row">
+      <div><b>Audio speed</b><span>Used by Listen for every language.</span></div>
+      <div class="segmented" id="audioRateControl">
+        <button data-audio-rate="0.8">0.8×</button><button data-audio-rate="0.95">1×</button><button data-audio-rate="1.1">1.1×</button>
+      </div>
+    </div>
+    <button class="setting-link" onclick="openLanguageOverview()"><div><b>Languages</b><span id="languageSummary">English by default · set per scripture</span></div><i>›</i></button>
+  </section>
+
+  <section class="settings-card">
+    <div class="settings-title"><div><h2>Learn & trust</h2><p>Context, sourcing and product information.</p></div></div>
+    <a class="setting-link" href="/guides"><div><b>Scripture guides</b><span>Beginner context for every tradition</span></div><i>›</i></a>
+    <a class="setting-link" href="/sources"><div><b>Sources & translations</b><span>See exactly what text and translation is used</span></div><i>›</i></a>
+    <a class="setting-link" href="/about"><div><b>About WisdomScroll</b><span>Purpose and editorial philosophy</span></div><i>›</i></a>
+    <a class="setting-link" href="/privacy"><div><b>Privacy</b><span>How saved passages and preferences are stored</span></div><i>›</i></a>
+  </section>
+
+  <section class="settings-card settings-card-last">
+    <div class="settings-title"><div><h2>Your data</h2><p>Preferences and saves currently stay in this browser.</p></div></div>
+    <button class="secondary-action" onclick="resetPreferences()">Reset interests & reading settings</button>
+    <button class="danger-action" onclick="clearSaved()">Clear saved passages</button>
+  </section>
+</section>
+
+<nav class="bottom-nav">
+  <button class="nav-btn active" data-view="home"><b>⌂</b>Home</button>
+  <button class="nav-btn" data-view="you"><b>◯</b>You</button>
+</nav>
+</div><div id="modal"></div><script src="/data.js"></script><script src="/app.js"></script></body></html>
