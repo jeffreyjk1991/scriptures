@@ -181,3 +181,60 @@ button{cursor:pointer}
 .seo-links{display:flex;flex-wrap:wrap;gap:8px}.seo-links a{padding:8px 10px;border-radius:999px;background:#f3f1ed;color:#393631;text-decoration:none;font-size:11px;font-weight:700}
 .seo-footer{border-top:1px solid var(--line);margin-top:48px;padding-top:22px;display:flex;gap:15px;flex-wrap:wrap;font-size:12px}.seo-footer a{color:#68645e;text-decoration:none}
 @media(max-width:620px){.seo-grid{grid-template-columns:1fr}.seo-shell{padding-left:18px;padding-right:18px}}
+
+/* First-visit guidance */
+.first-run-coach{
+  position:fixed;z-index:48;left:50%;top:0;bottom:0;transform:translateX(-50%);
+  width:min(460px,100%);pointer-events:none;opacity:0;transition:opacity .28s ease
+}
+.first-run-coach.show{opacity:1}
+.coach-filter-tip{
+  position:absolute;top:70px;right:58px;display:flex;align-items:center;gap:7px;
+  padding:7px 10px;border:1px solid rgba(17,17,15,.08);border-radius:999px;
+  background:rgba(255,255,255,.94);box-shadow:0 8px 24px rgba(0,0,0,.07);
+  backdrop-filter:blur(14px);font-size:10px;font-weight:780;color:#46423c;
+  transform:translateY(-5px);animation:coachTipIn .45s ease .12s both
+}
+.coach-filter-tip i{font-style:normal;font-size:12px;color:#8a857d}
+.coach-filter-pulse{
+  position:relative;z-index:49;animation:coachFilterPulse 1.8s ease-in-out 2;
+  box-shadow:0 0 0 0 rgba(106,84,163,.22),0 3px 14px rgba(0,0,0,.035)
+}
+.coach-scroll-tip{
+  position:absolute;left:50%;bottom:92px;transform:translateX(-50%);
+  width:max-content;max-width:82%;display:flex;flex-direction:column;align-items:center;
+  text-align:center;color:#494640;text-shadow:0 1px 0 rgba(255,255,255,.75)
+}
+.coach-scroll-tip strong{font-size:12px;letter-spacing:.01em}
+.coach-scroll-tip small{font-size:9.5px;color:#8a857d;margin-top:4px}
+.coach-swipe{height:34px;width:28px;position:relative;margin-bottom:6px}
+.coach-swipe span{
+  position:absolute;left:50%;width:10px;height:10px;border-left:1.6px solid #6d685f;border-top:1.6px solid #6d685f;
+  transform:translateX(-50%) rotate(45deg);opacity:0;animation:coachSwipe 1.55s ease-in-out infinite
+}
+.coach-swipe span:first-child{bottom:2px}
+.coach-swipe span:last-child{bottom:13px;animation-delay:.16s}
+
+@keyframes coachFilterPulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(106,84,163,0),0 3px 14px rgba(0,0,0,.035)}
+  45%{box-shadow:0 0 0 8px rgba(106,84,163,.10),0 5px 18px rgba(0,0,0,.055)}
+}
+@keyframes coachTipIn{
+  from{opacity:0;transform:translateY(-10px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes coachSwipe{
+  0%{opacity:0;transform:translate(-50%,10px) rotate(45deg)}
+  30%{opacity:.9}
+  75%{opacity:0;transform:translate(-50%,-7px) rotate(45deg)}
+  100%{opacity:0}
+}
+@media(max-width:360px){
+  .coach-filter-tip{right:50px;font-size:9px}
+  .coach-scroll-tip small{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+  .coach-filter-pulse,.coach-filter-tip,.coach-swipe span{animation:none}
+  .first-run-coach{transition:none}
+  .coach-swipe span{opacity:.7}
+}
