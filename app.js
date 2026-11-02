@@ -18,6 +18,9 @@ const state={
   interests:JSON.parse(localStorage.getItem("ws-interests")||'{"traditions":[],"topics":[]}'),
   textSize:localStorage.getItem("ws-text-size")||"default",
   audioRate:Number(localStorage.getItem("ws-audio-rate")||"0.95"),
+  seenIds:new Set(JSON.parse(sessionStorage.getItem("ws-feed-seen-v2")||"[]")),
+  recentIds:JSON.parse(sessionStorage.getItem("ws-feed-recent-v2")||"[]"),
+  hadSeenHistory:JSON.parse(sessionStorage.getItem("ws-feed-seen-v2")||"[]").length>0,
   batch:0,activeId:null,lastRenderedId:null
 };
 const tradition=s=>traditions.find(t=>t.slug===s);
@@ -32,8 +35,24 @@ function passageWeight(p){
   w+=p.topics.filter(t=>state.interests.topics.includes(t)).length*2.5;
   return w;
 }
-function weightedPick(pool,recent){
-  let eligible=pool.filter(p=>p.id!==state.lastRenderedId&&!recent.includes(p.id));
+function persistFeedHistory(){
+  try{
+    sessionStorage.setItem("ws-feed-seen-v2",JSON.stringify([...state.seenIds]));
+    sessionStorage.setItem("ws-feed-recent-v2",JSON.stringify(state.recentIds.slice(-8)));
+  }catch{}
+}
+function markSeen(id){
+  const n=Number(id);
+  state.seenIds.add(n);
+  state.recentIds=state.recentIds.filter(x=>x!==n);
+  state.recentIds.push(n);
+  if(state.recentIds.length>8)state.recentIds=state.recentIds.slice(-8);
+  state.lastRenderedId=n;
+  persistFeedHistory();
+}
+function weightedPick(pool){
+  if(!pool.length)return null;
+  let eligible=pool.filter(p=>!state.recentIds.includes(p.id)&&p.id!==state.lastRenderedId);
   if(!eligible.length)eligible=pool.filter(p=>p.id!==state.lastRenderedId);
   if(!eligible.length)eligible=pool;
   const weights=eligible.map(p=>passageWeight(p)),total=weights.reduce((a,b)=>a+b,0);
@@ -41,17 +60,35 @@ function weightedPick(pool,recent){
   for(let i=0;i<eligible.length;i++){r-=weights[i];if(r<=0)return eligible[i]}
   return eligible[eligible.length-1];
 }
+function beginNextCycle(pool){
+  pool.forEach(p=>state.seenIds.delete(p.id));
+  persistFeedHistory();
+}
 function buildBatch(count,firstId=null){
-  const pool=sourceList(),out=[],recent=[];
+  const pool=sourceList(),out=[];
+  if(!pool.length)return out;
+
   if(firstId){
     const first=pool.find(p=>p.id===Number(firstId));
-    if(first){out.push(first);recent.push(first.id);state.lastRenderedId=first.id}
+    if(first){out.push(first);markSeen(first.id)}
   }
-  while(out.length<count){
-    const p=weightedPick(pool,recent);
+
+  let available=pool.filter(p=>!state.seenIds.has(p.id)&&!out.some(x=>x.id===p.id));
+
+  // Only reset after the entire eligible corpus has been seen.
+  // Never reset in the middle of a batch; that prevents duplicates inside a loaded run.
+  if(!available.length&&out.length===0){
+    beginNextCycle(pool);
+    available=pool.filter(p=>!state.recentIds.includes(p.id));
+    if(!available.length)available=[...pool];
+  }
+
+  while(out.length<count&&available.length){
+    const p=weightedPick(available);
     if(!p)break;
-    out.push(p);state.lastRenderedId=p.id;recent.push(p.id);
-    if(recent.length>Math.min(5,Math.max(1,pool.length-1)))recent.shift();
+    out.push(p);
+    markSeen(p.id);
+    available=available.filter(x=>x.id!==p.id);
   }
   return out;
 }
@@ -280,9 +317,21 @@ function initFirstVisitCoach(){
 }
 function syncSeed(){
   document.querySelectorAll("[data-save-id]").forEach(btn=>{const id=Number(btn.dataset.saveId);btn.childNodes[0].nodeValue=state.saved.includes(id)?"♥":"♡"});
-  const slides=$$(".slide");if(slides.length){state.lastRenderedId=Number(slides[slides.length-1].dataset.id);state.activeId=Number(slides[0].dataset.id)}
+  const slides=$(".slide");
+  if(slides.length){
+    slides.forEach(s=>markSeen(Number(s.dataset.id)));
+    state.lastRenderedId=Number(slides[slides.length-1].dataset.id);
+    state.activeId=Number(slides[0].dataset.id);
+  }
 }
-applyTextSize();renderYou();syncSeed();updateHeader();
-if(state.filter!=="all"||state.topic||state.interests.traditions.length||state.interests.topics.length||Object.keys(state.langs).some(k=>state.langs[k]!=="en"))renderBatch(true,FEED_BATCH_SIZE);
-else ensureRunway();
+applyTextSize();renderYou();
+if(state.hadSeenHistory){
+  renderBatch(true,FEED_BATCH_SIZE);
+  updateHeader();
+}else{
+  syncSeed();
+  updateHeader();
+  if(state.filter!=="all"||state.topic||state.interests.traditions.length||state.interests.topics.length||Object.keys(state.langs).some(k=>state.langs[k]!=="en"))renderBatch(true,FEED_BATCH_SIZE);
+  else ensureRunway();
+}
 const deep=passageParam;if(deep&&passages.some(p=>p.id===Number(deep)))setTimeout(()=>jumpTo(Number(deep)),50);else setTimeout(initFirstVisitCoach,550);
