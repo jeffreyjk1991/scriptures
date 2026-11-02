@@ -64,7 +64,7 @@ function passageMarkup(p){
   <div class="actions">
     <button class="action" data-save-id="${p.id}" onclick="toggleSave(${p.id})" aria-label="Save ${p.citation}">${state.saved.includes(p.id)?"♥":"♡"}<small>Save</small></button>
     <button class="action" onclick="openStudy(${p.id})" aria-label="Study ${p.citation}"><svg class="action-glyph study-glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5h4.7c1.9 0 3.3.9 3.3 2.4v10.6c-.6-1.3-1.8-2.1-3.5-2.1H4V5.5Z"></path><path d="M20 5.5h-4.7c-1.9 0-3.3.9-3.3 2.4v10.6c.6-1.3 1.8-2.1 3.5-2.1H20V5.5Z"></path></svg><small>Study</small></button>
-    <button class="action" onclick="sharePassage(${p.id})" aria-label="Share ${p.citation}">↥<small>Share</small></button>
+    <button class="action" onclick="sharePassage(${p.id})" aria-label="Share ${p.citation}"><svg class="action-glyph share-glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3"></path><path d="M7.5 7.5 12 3l4.5 4.5"></path><path d="M5 11v8h14v-8"></path></svg><small>Share</small></button>
     <button class="action" onclick="speakPassage(${p.id})" aria-label="Listen to ${p.citation}"><svg class="action-glyph listen-glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4h4l5 4V6L8 10H4Z"></path><path d="M16 9.2c1 .8 1.6 1.7 1.6 2.8s-.6 2-1.6 2.8"></path><path d="M18.6 6.8c1.8 1.5 2.9 3.2 2.9 5.2s-1.1 3.7-2.9 5.2"></path></svg><small>Listen</small></button>
   </div><div class="scroll-hint">swipe up</div>`;
 }
