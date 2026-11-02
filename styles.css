@@ -1034,3 +1034,93 @@ button:focus-visible,a:focus-visible{
   .you-minimal{padding-left:20px;padding-right:20px}
   .you-minimal-head{padding-bottom:42px}
 }
+
+/* Silver popup system */
+/* Match Study, filters, language and You-detail sheets to the reader's graphite atmosphere. */
+.overlay{
+  background:rgba(24,29,34,.42);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+}
+.sheet{
+  color:rgba(255,255,255,.92);
+  border:0;
+  border-radius:26px 26px 0 0;
+  background:
+    radial-gradient(circle at 18% 4%,rgba(255,255,255,.15),transparent 30%),
+    radial-gradient(circle at 78% 82%,rgba(255,255,255,.055),transparent 27%),
+    linear-gradient(145deg,#8b939b 0%,#6e7680 50%,#505861 100%);
+  box-shadow:
+    0 -24px 70px rgba(16,21,26,.30),
+    inset 0 1px 0 rgba(255,255,255,.08);
+}
+.grab{
+  background:rgba(255,255,255,.20);
+}
+.sheet-head h2,
+.sheet-head b,
+.study h3{
+  color:rgba(255,255,255,.94);
+}
+.close{
+  color:rgba(255,255,255,.62);
+  background:transparent;
+}
+.choice{
+  color:rgba(255,255,255,.90);
+  background:transparent;
+  border-bottom-color:rgba(255,255,255,.08);
+}
+.choice-icon{
+  color:rgba(255,255,255,.70);
+}
+.choice-main b{
+  color:rgba(255,255,255,.90);
+}
+.choice-main span,
+.study p,
+.study .source,
+.sheet .source{
+  color:rgba(255,255,255,.56);
+}
+.check{
+  color:rgba(255,255,255,.68);
+}
+.tag-row span{
+  color:rgba(255,255,255,.76);
+  background:rgba(255,255,255,.08);
+}
+.sheet-empty{
+  color:rgba(255,255,255,.48);
+}
+.saved-sheet-row .choice-main span{
+  color:rgba(255,255,255,.50);
+}
+.mini-label{
+  color:rgba(255,255,255,.45);
+}
+.sheet .interest-chip{
+  color:rgba(255,255,255,.55);
+}
+.sheet .interest-chip.active{
+  color:rgba(255,255,255,.94);
+}
+.compact-setting{
+  border-bottom-color:rgba(255,255,255,.08);
+}
+.compact-setting>span{
+  color:rgba(255,255,255,.88);
+}
+.compact-setting .segmented button{
+  color:rgba(255,255,255,.46);
+}
+.compact-setting .segmented button.active{
+  color:rgba(255,255,255,.95);
+}
+.compact-link{
+  color:rgba(255,255,255,.90);
+}
+.danger-link .choice-main b{
+  color:#f0b0aa;
+}
+
