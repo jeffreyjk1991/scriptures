@@ -1,22 +1,37 @@
-# WisdomScroll
+# Scroll My Faith
 
-WisdomScroll is a multilingual scripture discovery website with an endless vertical reading feed across Christianity, Islam, Hinduism, Buddhism, Judaism, Sikhism and Taoism.
+Scroll My Faith (scrollmyfaith.com) is a multilingual, multi-faith scripture discovery website with an endless vertical reading feed.
+
+## What it does
+Users can scroll scripture one passage at a time across Christianity, Islam, Hinduism, Buddhism, Judaism, Sikhism and Taoism. Every passage remains clearly attributed to its tradition and translation.
 
 ## Primary pages
-- https://wisdom-scroll.vercel.app/
-- https://wisdom-scroll.vercel.app/scriptures
-- https://wisdom-scroll.vercel.app/topics
-- https://wisdom-scroll.vercel.app/guides
-- https://wisdom-scroll.vercel.app/sources
-- https://wisdom-scroll.vercel.app/about
+- https://www.scrollmyfaith.com/
+- https://www.scrollmyfaith.com/scriptures
+- https://www.scrollmyfaith.com/topics
+- https://www.scrollmyfaith.com/guides
+- https://www.scrollmyfaith.com/sources
+- https://www.scrollmyfaith.com/about
 
 ## Scripture pages
-- https://wisdom-scroll.vercel.app/bible
-- https://wisdom-scroll.vercel.app/quran
-- https://wisdom-scroll.vercel.app/bhagavad-gita
-- https://wisdom-scroll.vercel.app/dhammapada
-- https://wisdom-scroll.vercel.app/tanakh
-- https://wisdom-scroll.vercel.app/guru-granth-sahib
-- https://wisdom-scroll.vercel.app/tao-te-ching
+- https://www.scrollmyfaith.com/bible
+- https://www.scrollmyfaith.com/quran
+- https://www.scrollmyfaith.com/bhagavad-gita
+- https://www.scrollmyfaith.com/dhammapada
+- https://www.scrollmyfaith.com/tanakh
+- https://www.scrollmyfaith.com/guru-granth-sahib
+- https://www.scrollmyfaith.com/tao-te-ching
 
-WisdomScroll keeps each passage clearly attributed to its tradition and translation. It does not claim that different religions teach identical doctrines.
+## Topics
+- peace
+- anxiety
+- grief
+- purpose
+- love
+- forgiveness
+- discipline
+- justice
+- compassion
+- trust
+
+Scroll My Faith does not claim different religions teach identical doctrines.
