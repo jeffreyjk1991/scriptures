@@ -1,0 +1,22 @@
+# WisdomScroll
+
+WisdomScroll is a multilingual scripture discovery website with an endless vertical reading feed across Christianity, Islam, Hinduism, Buddhism, Judaism, Sikhism and Taoism.
+
+## Primary pages
+- https://wisdom-scroll.vercel.app/
+- https://wisdom-scroll.vercel.app/scriptures
+- https://wisdom-scroll.vercel.app/topics
+- https://wisdom-scroll.vercel.app/guides
+- https://wisdom-scroll.vercel.app/sources
+- https://wisdom-scroll.vercel.app/about
+
+## Scripture pages
+- https://wisdom-scroll.vercel.app/bible
+- https://wisdom-scroll.vercel.app/quran
+- https://wisdom-scroll.vercel.app/bhagavad-gita
+- https://wisdom-scroll.vercel.app/dhammapada
+- https://wisdom-scroll.vercel.app/tanakh
+- https://wisdom-scroll.vercel.app/guru-granth-sahib
+- https://wisdom-scroll.vercel.app/tao-te-ching
+
+WisdomScroll keeps each passage clearly attributed to its tradition and translation. It does not claim that different religions teach identical doctrines.
