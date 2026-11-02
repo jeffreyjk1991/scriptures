@@ -238,3 +238,34 @@ button{cursor:pointer}
   .first-run-coach{transition:none}
   .coach-swipe span{opacity:.7}
 }
+
+/* Minimal first-visit swipe cue */
+.coach-scroll-tip{
+  bottom:88px;
+  gap:5px;
+  color:#6d6962;
+  text-shadow:none;
+}
+.coach-scroll-tip strong{
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.coach-scroll-tip small,
+.coach-swipe{display:none!important}
+.coach-minimal-arrow{
+  width:10px;height:10px;display:block;
+  border-left:1.4px solid #77726b;
+  border-top:1.4px solid #77726b;
+  transform:rotate(45deg);
+  animation:coachMinimalUp 1.8s ease-in-out infinite;
+  opacity:.65;
+}
+@keyframes coachMinimalUp{
+  0%,100%{transform:translateY(4px) rotate(45deg);opacity:.35}
+  50%{transform:translateY(-3px) rotate(45deg);opacity:.8}
+}
+@media(prefers-reduced-motion:reduce){
+  .coach-minimal-arrow{animation:none;opacity:.6}
+}
