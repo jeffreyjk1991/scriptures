@@ -173,7 +173,7 @@ function openMoreMenu(){
   sheet(`<div class="sheet-head"><h2>More</h2><button class="close" onclick="closeSheet()">×</button></div>
     <a class="choice compact-link" href="/scriptures"><div class="choice-main"><b>Browse scriptures</b></div><div class="check">›</div></a>
     <a class="choice compact-link" href="/topics"><div class="choice-main"><b>Browse themes</b></div><div class="check">›</div></a>
-    <a class="choice compact-link" href="/guides"><div class="choice-main"><b>Guides</b></div><div class="check">›</div></a>\n    <a class="choice compact-link" href="/articles"><div class="choice-main"><b>Articles</b></div><div class="check">›</div></a>
+    <a class="choice compact-link" href="/guides"><div class="choice-main"><b>Guides</b></div><div class="check">›</div></a>\n    <a class="choice compact-link" href="/articles"><div class="choice-main"><b>Articles</b></div><div class="check">›</div></a>\n    <a class="choice compact-link" href="/editorial-policy"><div class="choice-main"><b>Editorial policy</b></div><div class="check">›</div></a>
     <button class="choice compact-link" onclick="openDataMenu()"><div class="choice-main"><b>Data & reset</b></div><div class="check">›</div></button>`);
 }
 function openDataMenu(){
