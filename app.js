@@ -25,7 +25,13 @@ const state={
 };
 const tradition=s=>traditions.find(t=>t.slug===s);
 const language=slug=>{const t=tradition(slug),key=state.langs[slug]||"en";return t.languages.find(l=>l.key===key)||t.languages[0]};
-const textFor=p=>p.text[language(p.tradition).key]||p.text.en;
+const languageForPassage=p=>{
+  const preferred=language(p.tradition);
+  if(p.text[preferred.key])return preferred;
+  const t=tradition(p.tradition);
+  return t.languages.find(l=>l.key==="en")||t.languages[0];
+};
+const textFor=p=>p.text[languageForPassage(p).key]||p.text.en;
 
 function sourceList(){let list=state.filter==="all"?passages:passages.filter(p=>p.tradition===state.filter);if(state.topic)list=list.filter(p=>p.topics.includes(state.topic));return list.length?list:(state.filter==="all"?passages:passages.filter(p=>p.tradition===state.filter))}
 function passageWeight(p){
@@ -93,7 +99,7 @@ function buildBatch(count,firstId=null){
   return out;
 }
 function passageMarkup(p){
-  const t=tradition(p.tradition),lang=language(p.tradition),rtl=["ar","ur","he"].includes(lang.key);
+  const t=tradition(p.tradition),lang=languageForPassage(p),rtl=["ar","ur","he"].includes(lang.key);
   return `<div class="passage-wrap" dir="${rtl?"rtl":"ltr"}">
     <div class="eyebrow"><span class="symbol">${t.symbol}</span><span>${t.name} · ${t.faith}</span></div>
     <p class="passage">${textFor(p)}</p><p class="citation">${p.citation}</p><p class="source">${lang.label} · ${lang.source}</p>
@@ -127,12 +133,12 @@ function closeSheet(){$("#modal").innerHTML=""}
 function openFilter(){sheet(`<div class="sheet-head"><h2>Choose tradition</h2><button class="close" onclick="closeSheet()">×</button></div>${[{slug:"all",name:"All traditions",faith:"Mixed feed",symbol:"∞"},...traditions].map(t=>`<button class="choice" onclick="chooseFilter('${t.slug}')"><div class="choice-icon">${t.symbol}</div><div class="choice-main"><b>${t.name}</b><span>${t.faith}</span></div><div class="check">${state.filter===t.slug?"✓":""}</div></button>`).join("")}`)}
 function chooseFilter(slug){state.filter=slug;state.topic=null;history.replaceState(null,"",location.pathname);closeSheet();updateHeader();renderBatch(true,FEED_BATCH_SIZE)}
 function activePassage(){return passages.find(p=>p.id===Number(state.activeId))||sourceList()[0]}
-function updateHeader(){const label=state.topic?state.topic.charAt(0).toUpperCase()+state.topic.slice(1):(state.filter==="all"?"All":tradition(state.filter).name);$("#filterBtn").textContent=label;const p=activePassage();$("#langBtn").textContent=p?language(p.tradition).short:"EN"}
+function updateHeader(){const label=state.topic?state.topic.charAt(0).toUpperCase()+state.topic.slice(1):(state.filter==="all"?"All":tradition(state.filter).name);$("#filterBtn").textContent=label;const p=activePassage();$("#langBtn").textContent=p?languageForPassage(p).short:"EN"}
 function openLanguage(){const p=activePassage();if(!p)return;const t=tradition(p.tradition),cur=language(p.tradition);sheet(`<div class="sheet-head"><h2>${t.name} language</h2><button class="close" onclick="closeSheet()">×</button></div>${t.languages.map(l=>`<button class="choice" onclick="setLanguage('${t.slug}','${l.key}',${p.id})"><div class="choice-main"><b>${l.label}</b><span>${l.source}</span></div><div class="check">${cur.key===l.key?"●":"○"}</div></button>`).join("")}`)}
 function setLanguage(slug,key,keepId){state.langs[slug]=key;localStorage.setItem("ws-langs",JSON.stringify(state.langs));closeSheet();state.activeId=Number(keepId);renderBatch(true,FEED_BATCH_SIZE,keepId);feed.scrollTop=0;renderYou();toast("Language updated")}
 function toggleSave(id){state.saved=state.saved.includes(id)?state.saved.filter(x=>x!==id):[...state.saved,id];localStorage.setItem("ws-saved",JSON.stringify(state.saved));document.querySelectorAll('[data-save-id="'+id+'"]').forEach(btn=>btn.childNodes[0].nodeValue=state.saved.includes(id)?"♥":"♡");renderYou();toast(state.saved.includes(id)?"Saved":"Removed")}
 function openStudy(id){
-  const p=passages.find(x=>x.id===id),t=tradition(p.tradition),l=language(p.tradition);
+  const p=passages.find(x=>x.id===id),t=tradition(p.tradition),l=languageForPassage(p);
   const themes=p.topics.map(x=>x.charAt(0).toUpperCase()+x.slice(1));
   const themeText=themes.length>1?themes.slice(0,-1).join(", ")+" and "+themes[themes.length-1]:themes[0]||"reflection";
   sheet(`<div class="study">
@@ -156,7 +162,7 @@ function openStudy(id){
   </div>`);
 }
 function voiceFor(locale){const voices=speechSynthesis.getVoices(),base=locale.toLowerCase().split("-")[0];return voices.find(v=>v.lang.toLowerCase()===locale.toLowerCase())||voices.find(v=>v.lang.toLowerCase().startsWith(base))||null}
-function speakPassage(id){const p=passages.find(x=>x.id===id),l=language(p.tradition);if(!("speechSynthesis" in window)){toast("Audio is not supported on this device");return}speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(textFor(p));u.lang=l.locale;u.rate=state.audioRate;const v=voiceFor(l.locale);if(v)u.voice=v;speechSynthesis.speak(u);toast("Playing in "+l.label)}
+function speakPassage(id){const p=passages.find(x=>x.id===id),l=languageForPassage(p);if(!("speechSynthesis" in window)){toast("Audio is not supported on this device");return}speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(textFor(p));u.lang=l.locale;u.rate=state.audioRate;const v=voiceFor(l.locale);if(v)u.voice=v;speechSynthesis.speak(u);toast("Playing in "+l.label)}
 function passageShareUrl(id){
   const canonical=(location.hostname==="scrollmyfaith.com"||location.hostname==="www.scrollmyfaith.com")?location.origin:"https://www.scrollmyfaith.com";
   return canonical+"/verse/"+Number(id);
