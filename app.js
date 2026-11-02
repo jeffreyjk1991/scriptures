@@ -194,12 +194,45 @@ function setAudioRateChoice(value){
   renderYou();
   openReadingMenu();
 }
-function toggleInterest(type,value){const a=state.interests[type],i=a.indexOf(value);if(i>=0)a.splice(i,1);else a.push(value);localStorage.setItem("ws-interests",JSON.stringify(state.interests));renderYou();openPersonalizeMenu()}
+function refreshPersonalizedFeed(){
+  const keep=Number(state.activeId)||null;
+  renderBatch(true,FEED_BATCH_SIZE,keep);
+  feed.scrollTop=0;
+  updateHeader();
+}
+function toggleInterest(type,value){
+  const a=state.interests[type],i=a.indexOf(value);
+  if(i>=0)a.splice(i,1);else a.push(value);
+  localStorage.setItem("ws-interests",JSON.stringify(state.interests));
+  refreshPersonalizedFeed();
+  renderYou();
+  openPersonalizeMenu();
+}
 function applyTextSize(){document.body.classList.remove("text-size-small","text-size-large");if(state.textSize==="small")document.body.classList.add("text-size-small");if(state.textSize==="large")document.body.classList.add("text-size-large")}
 function openLanguageOverview(){sheet(`<div class="sheet-head"><h2>Scripture languages</h2><button class="close" onclick="closeSheet()">×</button></div>${traditions.map(t=>{const l=language(t.slug);return `<button class="choice" onclick="openLanguageFor('${t.slug}')"><div class="choice-icon">${t.symbol}</div><div class="choice-main"><b>${t.name}</b><span>${l.label}</span></div><div class="check">›</div></button>`}).join("")}`)}
 function openLanguageFor(slug){const t=tradition(slug),cur=language(slug);sheet(`<div class="sheet-head"><h2>${t.name} language</h2><button class="close" onclick="closeSheet()">×</button></div>${t.languages.map(l=>`<button class="choice" onclick="setLanguageFromYou('${slug}','${l.key}')"><div class="choice-main"><b>${l.label}</b><span>${l.source}</span></div><div class="check">${cur.key===l.key?"●":"○"}</div></button>`).join("")}`)}
-function setLanguageFromYou(slug,key){state.langs[slug]=key;localStorage.setItem("ws-langs",JSON.stringify(state.langs));closeSheet();renderYou();toast("Language updated")}
-function resetPreferences(){state.interests={traditions:[],topics:[]};state.textSize="default";state.audioRate=.95;localStorage.removeItem("ws-interests");localStorage.removeItem("ws-text-size");localStorage.removeItem("ws-audio-rate");applyTextSize();renderYou();toast("Preferences reset")}
+function setLanguageFromYou(slug,key){
+  state.langs[slug]=key;
+  localStorage.setItem("ws-langs",JSON.stringify(state.langs));
+  closeSheet();
+  refreshPersonalizedFeed();
+  renderYou();
+  toast("Language updated");
+}
+function resetPreferences(){
+  state.interests={traditions:[],topics:[]};
+  state.textSize="default";
+  state.audioRate=.95;
+  state.langs={};
+  localStorage.removeItem("ws-interests");
+  localStorage.removeItem("ws-text-size");
+  localStorage.removeItem("ws-audio-rate");
+  localStorage.removeItem("ws-langs");
+  applyTextSize();
+  refreshPersonalizedFeed();
+  renderYou();
+  toast("Preferences reset");
+}
 function clearSaved(){state.saved=[];localStorage.setItem("ws-saved","[]");renderYou();document.querySelectorAll("[data-save-id]").forEach(btn=>btn.childNodes[0].nodeValue="♡");toast("Saved passages cleared")}
 function markCurrent(){const center=feed.getBoundingClientRect().top+feed.clientHeight/2;let best=null,d=Infinity;document.querySelectorAll(".slide").forEach(s=>{const r=s.getBoundingClientRect(),dist=Math.abs((r.top+r.height/2)-center);if(dist<d){d=dist;best=s}});document.querySelectorAll(".slide").forEach(s=>s.classList.toggle("current",s===best));if(best){state.activeId=Number(best.dataset.id);updateHeader()}}
 $("#filterBtn").onclick=openFilter;$("#langBtn").onclick=openLanguage;
