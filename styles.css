@@ -378,13 +378,33 @@ button:focus-visible,a:focus-visible{
   font-size:11px;
   opacity:.55;
 }
-#langBtn{
+.header-actions{
   grid-column:3;
   grid-row:1;
   justify-self:end;
+  display:flex;
+  align-items:center;
+  gap:13px;
+  min-width:0;
+}
+#moodBtn{
+  max-width:88px;
+  overflow:hidden;
+  white-space:nowrap;
+  text-overflow:ellipsis;
+}
+#moodBtn::after{
+  content:"⌄";
+  margin-left:5px;
+  font-size:11px;
+  opacity:.55;
+}
+#langBtn{
   min-width:auto;
   padding:0;
 }
+.mood-list{display:grid}
+.mood-choice{min-height:58px}
 .header-chip:active{opacity:.55}
 
 /* Full-screen atmospheric reader */
@@ -1594,3 +1614,11 @@ button:focus-visible,a:focus-visible{
 /* Familiar share-from-box action icon */
 .share-glyph{color:rgba(255,255,255,.86)}
 .share-glyph path{fill:none!important;stroke:currentColor!important;stroke-width:1.65;stroke-linecap:round;stroke-linejoin:round}
+
+
+/* Keep Mood compact on narrow phones */
+@media(max-width:370px){
+  .reader-header{padding-left:15px;padding-right:15px;gap:7px}
+  .header-actions{gap:9px}
+  #moodBtn{max-width:64px}
+}
