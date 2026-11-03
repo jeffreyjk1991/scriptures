@@ -34,7 +34,19 @@ const languageForPassage=p=>{
 const textFor=p=>p.text[languageForPassage(p).key]||p.text.en;
 const sourceForPassage=p=>{const lang=languageForPassage(p);return lang.key==="en"&&p.source?p.source:lang.source};
 
-function sourceList(){let list=state.filter==="all"?passages:passages.filter(p=>p.tradition===state.filter);if(state.topic)list=list.filter(p=>p.topics.includes(state.topic));return list.length?list:(state.filter==="all"?passages:passages.filter(p=>p.tradition===state.filter))}
+const MAX_FEED_PASSAGES=1000;
+const MAX_FEED_TEXT_CHARS=105;
+function isShortFeedPassage(p){
+  const text=(textFor(p)||"").trim();
+  return text.length>0&&text.length<=MAX_FEED_TEXT_CHARS;
+}
+function sourceList(){
+  let base=passages.filter(isShortFeedPassage).slice(0,MAX_FEED_PASSAGES);
+  let list=state.filter==="all"?base:base.filter(p=>p.tradition===state.filter);
+  if(state.topic)list=list.filter(p=>p.topics.includes(state.topic));
+  if(list.length)return list;
+  return state.filter==="all"?base:base.filter(p=>p.tradition===state.filter);
+}
 function passageWeight(p){
   if(state.filter!=="all")return 1;
   let w=1;
