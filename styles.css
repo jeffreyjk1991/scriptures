@@ -337,14 +337,14 @@ button:focus-visible,a:focus-visible{
 .brand-mark,.brand-subtitle{display:none}
 .brand-copy{min-width:0}
 .wordmark{
-  color:rgba(255,255,255,.93);
-  font-size:13px;
-  font-weight:540;
+  color:rgba(255,255,255,.98);
+  font-size:15px;
+  font-weight:620;
   line-height:1;
-  letter-spacing:.30em;
+  letter-spacing:.22em;
   text-transform:uppercase;
   white-space:nowrap;
-  text-shadow:0 1px 18px rgba(0,0,0,.10);
+  text-shadow:0 1px 18px rgba(0,0,0,.15);
 }
 .header-spacer{display:none}
 .header-chip{
