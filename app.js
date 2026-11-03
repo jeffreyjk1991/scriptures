@@ -51,11 +51,19 @@ function isShortFeedPassage(p){
   return text.length>0&&text.length<=MAX_FEED_TEXT_CHARS;
 }
 function sourceList(){
-  let base=passages.filter(p=>passageHasSelectedLanguage(p)&&isShortFeedPassage(p)).slice(0,MAX_FEED_PASSAGES);
+  const base=passages.filter(p=>passageHasSelectedLanguage(p)&&isShortFeedPassage(p)).slice(0,MAX_FEED_PASSAGES);
   let list=state.filter==="all"?base:base.filter(p=>p.tradition===state.filter);
   if(state.topic)list=list.filter(p=>p.topics.includes(state.topic));
-  if(list.length)return list;
-  return state.filter==="all"?base:base.filter(p=>p.tradition===state.filter);
+  return list;
+}
+function languagePool(slug,key){
+  return passages.filter(p=>p.tradition===slug&&p.text&&p.text[key]&&String(p.text[key]).trim().length>0&&String(p.text[key]).trim().length<=MAX_FEED_TEXT_CHARS);
+}
+function resetSeenForPool(pool){
+  const ids=new Set(pool.map(p=>p.id));
+  pool.forEach(p=>state.seenIds.delete(p.id));
+  state.recentIds=state.recentIds.filter(id=>!ids.has(id));
+  persistFeedHistory();
 }
 function passageWeight(p){
   if(state.filter!=="all")return 1;
@@ -165,7 +173,17 @@ function openMood(){
   const all={topic:null,label:"All moods",detail:"Everything"};
   sheet(`<div class="sheet-head"><h2>What do you need?</h2><button class="close" onclick="closeSheet()">×</button></div><div class="mood-list">${[all,...moods].map(m=>`<button class="choice mood-choice" onclick="chooseMood(${m.topic?"'"+m.topic+"'":"null"})"><div class="choice-main"><b>${m.label}</b><span>${m.detail}</span></div><div class="check">${state.topic===m.topic?"✓":""}</div></button>`).join("")}</div>`);
 }
-function chooseMood(topic){state.topic=topic;syncFeedUrl();closeSheet();updateHeader();renderBatch(true,FEED_BATCH_SIZE);feed.scrollTop=0}
+function chooseMood(topic){
+  const previous=state.topic;
+  state.topic=topic;
+  if(topic&&sourceList().length===0){
+    state.topic=previous;
+    closeSheet();
+    toast("No passages are available for that mood with the current language and tradition");
+    return;
+  }
+  syncFeedUrl();closeSheet();updateHeader();renderBatch(true,FEED_BATCH_SIZE);feed.scrollTop=0
+}
 function activePassage(){return passages.find(p=>p.id===Number(state.activeId))||sourceList()[0]}
 function updateHeader(){
   const filterLabel=state.filter==="all"?"All":tradition(state.filter).name;
@@ -195,14 +213,21 @@ function openLanguage(){
 function setLanguage(slug,key,keepId){
   state.langs[slug]=key;
   localStorage.setItem("ws-langs",JSON.stringify(state.langs));
+  const pool=languagePool(slug,key);
+  resetSeenForPool(pool);
+  let moodCleared=false;
+  if(key!=="en")state.filter=slug;
+  if(state.topic&&sourceList().length===0){state.topic=null;moodCleared=true}
+  syncFeedUrl();
   closeSheet();
   state.activeId=Number(keepId);
-  renderBatch(true,FEED_BATCH_SIZE,keepId);
+  renderBatch(true,FEED_BATCH_SIZE);
   feed.scrollTop=0;
   renderYou();
   updateHeader();
   const count=availableLanguageCount(slug,key);
-  toast(key==="en"?"English selected":language(slug).label+" selected · "+count+" passages");
+  const label=language(slug).label;
+  toast(key==="en"?"English selected":label+" selected · "+count+" passages"+(moodCleared?" · mood cleared":""));
 }
 function toggleSave(id){state.saved=state.saved.includes(id)?state.saved.filter(x=>x!==id):[...state.saved,id];localStorage.setItem("ws-saved",JSON.stringify(state.saved));document.querySelectorAll('[data-save-id="'+id+'"]').forEach(btn=>btn.childNodes[0].nodeValue=state.saved.includes(id)?"♥":"♡");renderYou();toast(state.saved.includes(id)?"Saved":"Removed")}
 function openStudy(id){
@@ -229,8 +254,18 @@ function openStudy(id){
     <div class="study-meta"><span>Text source</span><b>${(l.key==="en"&&p.source)?p.source:l.source}</b></div>
   </div>`);
 }
+let speechVoices=[];
+function refreshSpeechVoices(){
+  if(!("speechSynthesis" in window))return [];
+  try{speechVoices=speechSynthesis.getVoices()||[]}catch{speechVoices=[]}
+  return speechVoices;
+}
+if("speechSynthesis" in window){
+  refreshSpeechVoices();
+  try{speechSynthesis.addEventListener("voiceschanged",refreshSpeechVoices)}catch{speechSynthesis.onvoiceschanged=refreshSpeechVoices}
+}
 function voiceFor(locale){
-  const voices=speechSynthesis.getVoices()||[];
+  const voices=speechVoices.length?speechVoices:refreshSpeechVoices();
   const wanted=(locale||"").toLowerCase(),base=wanted.split("-")[0];
   return voices.find(v=>(v.lang||"").toLowerCase()===wanted)||
     voices.find(v=>(v.lang||"").toLowerCase().split("-")[0]===base)||
@@ -241,33 +276,38 @@ function speakPassage(id){
   if(!p||!("speechSynthesis" in window)||typeof SpeechSynthesisUtterance==="undefined"){
     toast("Audio is not supported on this device");return;
   }
-  const l=languageForPassage(p),spoken=textFor(p).trim();
-  if(!spoken){toast("No audio text is available for this passage");return}
   const requestedKey=selectedLanguageKey(p.tradition);
   if(requestedKey!=="en"&&(!p.text||!p.text[requestedKey])){
     toast("This passage is not available in the selected language");return;
   }
+  const l=languageForPassage(p),spoken=(textFor(p)||"").trim();
+  if(!spoken){toast("No audio text is available for this passage");return}
   const u=new SpeechSynthesisUtterance(spoken);
   u.lang=l.locale||"en-US";
   u.rate=state.audioRate;
+  u.pitch=1;
+  u.volume=1;
   let v=voiceFor(u.lang),fallbackLabel="";
   if(!v&&l.key==="sa"){
     v=voiceFor("hi-IN");
-    if(v)fallbackLabel=" with the device Hindi voice";
+    if(v)fallbackLabel=" using the device Hindi voice";
   }
   if(v)u.voice=v;
-  u.onstart=()=>toast("Playing in "+l.label+fallbackLabel);
+  let started=false;
+  u.onstart=()=>{started=true;toast("Playing in "+l.label+fallbackLabel)};
   u.onerror=()=>toast(l.label+" audio is unavailable on this device");
-  const start=()=>{
-    try{
-      if(speechSynthesis.paused)speechSynthesis.resume();
-      speechSynthesis.speak(u);
-    }catch{toast(l.label+" audio is unavailable on this device")}
-  };
-  if(speechSynthesis.speaking||speechSynthesis.pending){
+  try{
     speechSynthesis.cancel();
-    setTimeout(start,80);
-  }else start();
+    if(speechSynthesis.paused)speechSynthesis.resume();
+    speechSynthesis.speak(u);
+    setTimeout(()=>{
+      if(!started&&!speechSynthesis.speaking&&!speechSynthesis.pending){
+        toast(l.label+" audio could not start on this device");
+      }
+    },1800);
+  }catch{
+    toast(l.label+" audio is unavailable on this device");
+  }
 }
 function passageShareUrl(id){
   const canonical=(location.hostname==="scrollmyfaith.com"||location.hostname==="www.scrollmyfaith.com")?location.origin:"https://www.scrollmyfaith.com";
@@ -371,10 +411,13 @@ function openLanguageFor(slug){
 function setLanguageFromYou(slug,key){
   state.langs[slug]=key;
   localStorage.setItem("ws-langs",JSON.stringify(state.langs));
+  resetSeenForPool(languagePool(slug,key));
+  let moodCleared=false;
+  if(state.topic&&sourceList().length===0){state.topic=null;moodCleared=true;syncFeedUrl()}
   closeSheet();
   refreshPersonalizedFeed();
   renderYou();
-  toast("Language updated");
+  toast("Language updated"+(moodCleared?" · mood cleared because no translated passages matched":""));
 }
 function resetPreferences(){
   state.interests={traditions:[],topics:[]};
@@ -445,6 +488,8 @@ function syncSeed(){
   }
 }
 applyTextSize();renderYou();
+let initialMoodCleared=false;
+if(state.topic&&sourceList().length===0){state.topic=null;initialMoodCleared=true;syncFeedUrl()}
 const hasCustomFeed=state.filter!=="all"||state.topic||state.interests.traditions.length||state.interests.topics.length||Object.keys(state.langs).some(k=>state.langs[k]!=="en");
 if(state.hadSeenHistory||hasCustomFeed){
   renderBatch(true,FEED_BATCH_SIZE);
@@ -454,4 +499,5 @@ if(state.hadSeenHistory||hasCustomFeed){
   updateHeader();
   ensureRunway();
 }
+if(initialMoodCleared)setTimeout(()=>toast("That mood had no passages in the selected language; showing the available language feed"),180);
 const deep=passageParam;if(deep&&passages.some(p=>p.id===Number(deep)))setTimeout(()=>jumpTo(Number(deep)),50);else setTimeout(initFirstVisitCoach,550);
