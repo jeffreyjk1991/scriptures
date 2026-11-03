@@ -196,7 +196,7 @@ function updateHeader(){
 function languageChoiceRows(t,cur,handler){
   return t.languages.map(l=>{
     const count=availableLanguageCount(t.slug,l.key);
-    const detail=l.key==="en"?l.source:(l.source+" · "+count+" short passages");
+    const detail=l.key==="en"?l.source:(l.source+" · "+(count<10?"Preview · ":"")+count+" short passages");
     return `<button class="choice" onclick="${handler}('${t.slug}','${l.key}')"><div class="choice-main"><b>${l.label}</b><span>${detail}</span></div><div class="check">${cur.key===l.key?"●":"○"}</div></button>`;
   }).join("");
 }
@@ -205,7 +205,7 @@ function openLanguage(){
   const t=tradition(p.tradition),cur=language(p.tradition);
   const rows=t.languages.map(l=>{
     const count=availableLanguageCount(t.slug,l.key);
-    const detail=l.key==="en"?l.source:(l.source+" · "+count+" short passages");
+    const detail=l.key==="en"?l.source:(l.source+" · "+(count<10?"Preview · ":"")+count+" short passages");
     return `<button class="choice" onclick="setLanguage('${t.slug}','${l.key}',${p.id})"><div class="choice-main"><b>${l.label}</b><span>${detail}</span></div><div class="check">${cur.key===l.key?"●":"○"}</div></button>`;
   }).join("");
   sheet(`<div class="sheet-head"><div><h2>${t.name} language</h2><div class="source">Languages are set per scripture. Only passages available in the selected language are shown.</div></div><button class="close" onclick="closeSheet()">×</button></div>${rows}`);
@@ -403,7 +403,7 @@ function openLanguageFor(slug){
   const t=tradition(slug),cur=language(slug);
   const rows=t.languages.map(l=>{
     const count=availableLanguageCount(slug,l.key);
-    const detail=l.key==="en"?l.source:(l.source+" · "+count+" short passages");
+    const detail=l.key==="en"?l.source:(l.source+" · "+(count<10?"Preview · ":"")+count+" short passages");
     return `<button class="choice" onclick="setLanguageFromYou('${slug}','${l.key}')"><div class="choice-main"><b>${l.label}</b><span>${detail}</span></div><div class="check">${cur.key===l.key?"●":"○"}</div></button>`;
   }).join("");
   sheet(`<div class="sheet-head"><h2>${t.name} language</h2><button class="close" onclick="closeSheet()">×</button></div>${rows}`);
