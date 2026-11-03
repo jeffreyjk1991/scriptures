@@ -9,6 +9,7 @@ const passageParam=params.get("passage")||(versePathMatch?versePathMatch[1]:null
 const traditionParam=params.get("tradition");
 const topicParam=params.get("topic");
 const traditionMap={bible:"christianity",quran:"islam","bhagavad-gita":"hinduism",dhammapada:"buddhism",tanakh:"judaism","guru-granth-sahib":"sikhism","tao-te-ching":"taoism"};
+const moods=[{topic:"anxiety",label:"Anxious",detail:"Reassurance and steadiness"},{topic:"peace",label:"Peace",detail:"Calm and reconciliation"},{topic:"grief",label:"Grief",detail:"Loss and comfort"},{topic:"purpose",label:"Guidance",detail:"Purpose and direction"},{topic:"love",label:"Love",detail:"Compassion and connection"},{topic:"forgiveness",label:"Forgiveness",detail:"Mercy and release"}];
 const initialFilter=traditionMap[traditionParam]||traditionParam||"all";
 const state={
   filter:traditions.some(t=>t.slug===initialFilter)?initialFilter:"all",
@@ -144,9 +145,27 @@ $$(".nav-btn").forEach(b=>b.onclick=()=>setView(b.dataset.view));
 function sheet(content){$("#modal").innerHTML=`<div class="overlay" onclick="closeSheet()"><div class="sheet" onclick="event.stopPropagation()"><div class="grab"></div>${content}</div></div>`}
 function closeSheet(){$("#modal").innerHTML=""}
 function openFilter(){sheet(`<div class="sheet-head"><h2>Choose tradition</h2><button class="close" onclick="closeSheet()">×</button></div>${[{slug:"all",name:"All traditions",faith:"Mixed feed",symbol:"∞"},...traditions].map(t=>`<button class="choice" onclick="chooseFilter('${t.slug}')"><div class="choice-icon">${t.symbol}</div><div class="choice-main"><b>${t.name}</b><span>${t.faith}</span></div><div class="check">${state.filter===t.slug?"✓":""}</div></button>`).join("")}`)}
-function chooseFilter(slug){state.filter=slug;state.topic=null;history.replaceState(null,"",location.pathname);closeSheet();updateHeader();renderBatch(true,FEED_BATCH_SIZE)}
+function syncFeedUrl(){
+  const q=new URLSearchParams();
+  if(state.filter!=="all")q.set("tradition",state.filter);
+  if(state.topic)q.set("topic",state.topic);
+  history.replaceState(null,"","/"+(q.toString()?"?"+q.toString():""));
+}
+function chooseFilter(slug){state.filter=slug;syncFeedUrl();closeSheet();updateHeader();renderBatch(true,FEED_BATCH_SIZE);feed.scrollTop=0}
+function openMood(){
+  const all={topic:null,label:"All moods",detail:"Everything"};
+  sheet(`<div class="sheet-head"><h2>What do you need?</h2><button class="close" onclick="closeSheet()">×</button></div><div class="mood-list">${[all,...moods].map(m=>`<button class="choice mood-choice" onclick="chooseMood(${m.topic?"'"+m.topic+"'":"null"})"><div class="choice-main"><b>${m.label}</b><span>${m.detail}</span></div><div class="check">${state.topic===m.topic?"✓":""}</div></button>`).join("")}</div>`);
+}
+function chooseMood(topic){state.topic=topic;syncFeedUrl();closeSheet();updateHeader();renderBatch(true,FEED_BATCH_SIZE);feed.scrollTop=0}
 function activePassage(){return passages.find(p=>p.id===Number(state.activeId))||sourceList()[0]}
-function updateHeader(){const label=state.topic?state.topic.charAt(0).toUpperCase()+state.topic.slice(1):(state.filter==="all"?"All":tradition(state.filter).name);$("#filterBtn").textContent=label;const p=activePassage();$("#langBtn").textContent=p?languageForPassage(p).short:"EN"}
+function updateHeader(){
+  const filterLabel=state.filter==="all"?"All":tradition(state.filter).name;
+  $("#filterBtn").textContent=filterLabel;
+  const mood=moods.find(m=>m.topic===state.topic);
+  $("#moodBtn").textContent=mood?mood.label:"Mood";
+  const p=activePassage();
+  $("#langBtn").textContent=p?languageForPassage(p).short:"EN";
+}
 function openLanguage(){const p=activePassage();if(!p)return;const t=tradition(p.tradition),cur=language(p.tradition);sheet(`<div class="sheet-head"><h2>${t.name} language</h2><button class="close" onclick="closeSheet()">×</button></div>${t.languages.map(l=>`<button class="choice" onclick="setLanguage('${t.slug}','${l.key}',${p.id})"><div class="choice-main"><b>${l.label}</b><span>${l.source}</span></div><div class="check">${cur.key===l.key?"●":"○"}</div></button>`).join("")}`)}
 function setLanguage(slug,key,keepId){state.langs[slug]=key;localStorage.setItem("ws-langs",JSON.stringify(state.langs));closeSheet();state.activeId=Number(keepId);renderBatch(true,FEED_BATCH_SIZE,keepId);feed.scrollTop=0;renderYou();toast("Language updated")}
 function toggleSave(id){state.saved=state.saved.includes(id)?state.saved.filter(x=>x!==id):[...state.saved,id];localStorage.setItem("ws-saved",JSON.stringify(state.saved));document.querySelectorAll('[data-save-id="'+id+'"]').forEach(btn=>btn.childNodes[0].nodeValue=state.saved.includes(id)?"♥":"♡");renderYou();toast(state.saved.includes(id)?"Saved":"Removed")}
@@ -291,7 +310,7 @@ function resetPreferences(){
 }
 function clearSaved(){state.saved=[];localStorage.setItem("ws-saved","[]");renderYou();document.querySelectorAll("[data-save-id]").forEach(btn=>btn.childNodes[0].nodeValue="♡");toast("Saved passages cleared")}
 function markCurrent(){const center=feed.getBoundingClientRect().top+feed.clientHeight/2;let best=null,d=Infinity;document.querySelectorAll(".slide").forEach(s=>{const r=s.getBoundingClientRect(),dist=Math.abs((r.top+r.height/2)-center);if(dist<d){d=dist;best=s}});document.querySelectorAll(".slide").forEach(s=>s.classList.toggle("current",s===best));if(best){state.activeId=Number(best.dataset.id);updateHeader()}}
-$("#filterBtn").onclick=openFilter;$("#langBtn").onclick=openLanguage;
+$("#filterBtn").onclick=openFilter;$("#moodBtn").onclick=openMood;$("#langBtn").onclick=openLanguage;
 function toast(msg){const e=document.createElement("div");e.className="toast";e.textContent=msg;document.body.appendChild(e);setTimeout(()=>e.remove(),1300)}
 
 function initFirstVisitCoach(){
