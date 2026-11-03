@@ -1,6 +1,6 @@
 # Scroll My Faith
 
-Scroll My Faith (scrollmyfaith.com) is a multilingual, multi-faith scripture discovery website with an endless vertical reading feed.
+Scroll My Faith (scrollmyfaith.com) is a multilingual, multi-faith scripture discovery website focused on short passages for real-life needs such as anxiety, hope, strength, peace, grief, love, forgiveness and purpose.
 
 ## What it does
 Users can scroll scripture one passage at a time across Christianity, Islam, Hinduism, Buddhism, Judaism, Sikhism and Taoism. Every passage remains clearly attributed to its tradition and translation.
@@ -22,17 +22,16 @@ Users can scroll scripture one passage at a time across Christianity, Islam, Hin
 - https://www.scrollmyfaith.com/guru-granth-sahib
 - https://www.scrollmyfaith.com/tao-te-ching
 
-## Topics
-- peace
-- anxiety
-- grief
-- purpose
-- love
-- forgiveness
-- discipline
-- justice
-- compassion
-- trust
+## High-intent topic pages
+- https://www.scrollmyfaith.com/topic/anxiety — scriptures for anxiety, stress and fear
+- https://www.scrollmyfaith.com/topic/trust — scriptures for hope, strength and trust
+- https://www.scrollmyfaith.com/topic/peace — scriptures for peace, calm and reassurance
+- https://www.scrollmyfaith.com/topic/grief — scriptures for grief, loss and comfort
+- https://www.scrollmyfaith.com/topic/purpose — scriptures for purpose, guidance and direction
+- https://www.scrollmyfaith.com/topic/love — scriptures about love and compassion
+- https://www.scrollmyfaith.com/topic/forgiveness — scriptures about forgiveness and mercy
+
+Additional topics include discipline, justice and compassion.
 
 Scroll My Faith does not claim different religions teach identical doctrines.
 
