@@ -34,6 +34,15 @@ const languageForPassage=p=>{
 };
 const textFor=p=>p.text[languageForPassage(p).key]||p.text.en;
 const sourceForPassage=p=>{const lang=languageForPassage(p);return lang.key==="en"&&p.source?p.source:lang.source};
+const selectedLanguageKey=slug=>state.langs[slug]||"en";
+const passageHasSelectedLanguage=p=>{
+  const key=selectedLanguageKey(p.tradition);
+  return key==="en"||Boolean(p.text&&p.text[key]);
+};
+const availableLanguageCount=(slug,key)=>passages.filter(p=>{
+  if(p.tradition!==slug||!p.text||!p.text[key])return false;
+  return String(p.text[key]).trim().length>0&&String(p.text[key]).trim().length<=MAX_FEED_TEXT_CHARS;
+}).length;
 
 const MAX_FEED_PASSAGES=1000;
 const MAX_FEED_TEXT_CHARS=105;
@@ -42,7 +51,7 @@ function isShortFeedPassage(p){
   return text.length>0&&text.length<=MAX_FEED_TEXT_CHARS;
 }
 function sourceList(){
-  let base=passages.filter(isShortFeedPassage).slice(0,MAX_FEED_PASSAGES);
+  let base=passages.filter(p=>passageHasSelectedLanguage(p)&&isShortFeedPassage(p)).slice(0,MAX_FEED_PASSAGES);
   let list=state.filter==="all"?base:base.filter(p=>p.tradition===state.filter);
   if(state.topic)list=list.filter(p=>p.topics.includes(state.topic));
   if(list.length)return list;
@@ -166,8 +175,35 @@ function updateHeader(){
   const p=activePassage();
   $("#langBtn").textContent=p?languageForPassage(p).short:"EN";
 }
-function openLanguage(){const p=activePassage();if(!p)return;const t=tradition(p.tradition),cur=language(p.tradition);sheet(`<div class="sheet-head"><h2>${t.name} language</h2><button class="close" onclick="closeSheet()">×</button></div>${t.languages.map(l=>`<button class="choice" onclick="setLanguage('${t.slug}','${l.key}',${p.id})"><div class="choice-main"><b>${l.label}</b><span>${l.source}</span></div><div class="check">${cur.key===l.key?"●":"○"}</div></button>`).join("")}`)}
-function setLanguage(slug,key,keepId){state.langs[slug]=key;localStorage.setItem("ws-langs",JSON.stringify(state.langs));closeSheet();state.activeId=Number(keepId);renderBatch(true,FEED_BATCH_SIZE,keepId);feed.scrollTop=0;renderYou();toast("Language updated")}
+function languageChoiceRows(t,cur,handler){
+  return t.languages.map(l=>{
+    const count=availableLanguageCount(t.slug,l.key);
+    const detail=l.key==="en"?l.source:(l.source+" · "+count+" short passages");
+    return `<button class="choice" onclick="${handler}('${t.slug}','${l.key}')"><div class="choice-main"><b>${l.label}</b><span>${detail}</span></div><div class="check">${cur.key===l.key?"●":"○"}</div></button>`;
+  }).join("");
+}
+function openLanguage(){
+  const p=activePassage();if(!p)return;
+  const t=tradition(p.tradition),cur=language(p.tradition);
+  const rows=t.languages.map(l=>{
+    const count=availableLanguageCount(t.slug,l.key);
+    const detail=l.key==="en"?l.source:(l.source+" · "+count+" short passages");
+    return `<button class="choice" onclick="setLanguage('${t.slug}','${l.key}',${p.id})"><div class="choice-main"><b>${l.label}</b><span>${detail}</span></div><div class="check">${cur.key===l.key?"●":"○"}</div></button>`;
+  }).join("");
+  sheet(`<div class="sheet-head"><div><h2>${t.name} language</h2><div class="source">Languages are set per scripture. Only passages available in the selected language are shown.</div></div><button class="close" onclick="closeSheet()">×</button></div>${rows}`);
+}
+function setLanguage(slug,key,keepId){
+  state.langs[slug]=key;
+  localStorage.setItem("ws-langs",JSON.stringify(state.langs));
+  closeSheet();
+  state.activeId=Number(keepId);
+  renderBatch(true,FEED_BATCH_SIZE,keepId);
+  feed.scrollTop=0;
+  renderYou();
+  updateHeader();
+  const count=availableLanguageCount(slug,key);
+  toast(key==="en"?"English selected":language(slug).label+" selected · "+count+" passages");
+}
 function toggleSave(id){state.saved=state.saved.includes(id)?state.saved.filter(x=>x!==id):[...state.saved,id];localStorage.setItem("ws-saved",JSON.stringify(state.saved));document.querySelectorAll('[data-save-id="'+id+'"]').forEach(btn=>btn.childNodes[0].nodeValue=state.saved.includes(id)?"♥":"♡");renderYou();toast(state.saved.includes(id)?"Saved":"Removed")}
 function openStudy(id){
   const p=passages.find(x=>x.id===id),t=tradition(p.tradition),l=languageForPassage(p);
@@ -193,8 +229,46 @@ function openStudy(id){
     <div class="study-meta"><span>Text source</span><b>${(l.key==="en"&&p.source)?p.source:l.source}</b></div>
   </div>`);
 }
-function voiceFor(locale){const voices=speechSynthesis.getVoices(),base=locale.toLowerCase().split("-")[0];return voices.find(v=>v.lang.toLowerCase()===locale.toLowerCase())||voices.find(v=>v.lang.toLowerCase().startsWith(base))||null}
-function speakPassage(id){const p=passages.find(x=>x.id===id),l=languageForPassage(p);if(!("speechSynthesis" in window)){toast("Audio is not supported on this device");return}speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(textFor(p));u.lang=l.locale;u.rate=state.audioRate;const v=voiceFor(l.locale);if(v)u.voice=v;speechSynthesis.speak(u);toast("Playing in "+l.label)}
+function voiceFor(locale){
+  const voices=speechSynthesis.getVoices()||[];
+  const wanted=(locale||"").toLowerCase(),base=wanted.split("-")[0];
+  return voices.find(v=>(v.lang||"").toLowerCase()===wanted)||
+    voices.find(v=>(v.lang||"").toLowerCase().split("-")[0]===base)||
+    null;
+}
+function speakPassage(id){
+  const p=passages.find(x=>x.id===id);
+  if(!p||!("speechSynthesis" in window)||typeof SpeechSynthesisUtterance==="undefined"){
+    toast("Audio is not supported on this device");return;
+  }
+  const l=languageForPassage(p),spoken=textFor(p).trim();
+  if(!spoken){toast("No audio text is available for this passage");return}
+  const requestedKey=selectedLanguageKey(p.tradition);
+  if(requestedKey!=="en"&&(!p.text||!p.text[requestedKey])){
+    toast("This passage is not available in the selected language");return;
+  }
+  const u=new SpeechSynthesisUtterance(spoken);
+  u.lang=l.locale||"en-US";
+  u.rate=state.audioRate;
+  let v=voiceFor(u.lang),fallbackLabel="";
+  if(!v&&l.key==="sa"){
+    v=voiceFor("hi-IN");
+    if(v)fallbackLabel=" with the device Hindi voice";
+  }
+  if(v)u.voice=v;
+  u.onstart=()=>toast("Playing in "+l.label+fallbackLabel);
+  u.onerror=()=>toast(l.label+" audio is unavailable on this device");
+  const start=()=>{
+    try{
+      if(speechSynthesis.paused)speechSynthesis.resume();
+      speechSynthesis.speak(u);
+    }catch{toast(l.label+" audio is unavailable on this device")}
+  };
+  if(speechSynthesis.speaking||speechSynthesis.pending){
+    speechSynthesis.cancel();
+    setTimeout(start,80);
+  }else start();
+}
 function passageShareUrl(id){
   const canonical=(location.hostname==="scrollmyfaith.com"||location.hostname==="www.scrollmyfaith.com")?location.origin:"https://www.scrollmyfaith.com";
   return canonical+"/verse/"+Number(id);
@@ -284,8 +358,16 @@ function toggleInterest(type,value){
   openPersonalizeMenu();
 }
 function applyTextSize(){document.body.classList.remove("text-size-small","text-size-large");if(state.textSize==="small")document.body.classList.add("text-size-small");if(state.textSize==="large")document.body.classList.add("text-size-large")}
-function openLanguageOverview(){sheet(`<div class="sheet-head"><h2>Scripture languages</h2><button class="close" onclick="closeSheet()">×</button></div>${traditions.map(t=>{const l=language(t.slug);return `<button class="choice" onclick="openLanguageFor('${t.slug}')"><div class="choice-icon">${t.symbol}</div><div class="choice-main"><b>${t.name}</b><span>${l.label}</span></div><div class="check">›</div></button>`}).join("")}`)}
-function openLanguageFor(slug){const t=tradition(slug),cur=language(slug);sheet(`<div class="sheet-head"><h2>${t.name} language</h2><button class="close" onclick="closeSheet()">×</button></div>${t.languages.map(l=>`<button class="choice" onclick="setLanguageFromYou('${slug}','${l.key}')"><div class="choice-main"><b>${l.label}</b><span>${l.source}</span></div><div class="check">${cur.key===l.key?"●":"○"}</div></button>`).join("")}`)}
+function openLanguageOverview(){sheet(`<div class="sheet-head"><div><h2>Scripture languages</h2><div class="source">Choose a language for each scripture. The feed will only show passages that actually exist in that language.</div></div><button class="close" onclick="closeSheet()">×</button></div>${traditions.map(t=>{const l=language(t.slug);return `<button class="choice" onclick="openLanguageFor('${t.slug}')"><div class="choice-icon">${t.symbol}</div><div class="choice-main"><b>${t.name}</b><span>${l.label}</span></div><div class="check">›</div></button>`}).join("")}`)}
+function openLanguageFor(slug){
+  const t=tradition(slug),cur=language(slug);
+  const rows=t.languages.map(l=>{
+    const count=availableLanguageCount(slug,l.key);
+    const detail=l.key==="en"?l.source:(l.source+" · "+count+" short passages");
+    return `<button class="choice" onclick="setLanguageFromYou('${slug}','${l.key}')"><div class="choice-main"><b>${l.label}</b><span>${detail}</span></div><div class="check">${cur.key===l.key?"●":"○"}</div></button>`;
+  }).join("");
+  sheet(`<div class="sheet-head"><h2>${t.name} language</h2><button class="close" onclick="closeSheet()">×</button></div>${rows}`);
+}
 function setLanguageFromYou(slug,key){
   state.langs[slug]=key;
   localStorage.setItem("ws-langs",JSON.stringify(state.langs));
