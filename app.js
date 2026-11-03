@@ -102,7 +102,7 @@ function passageMarkup(p){
   const t=tradition(p.tradition),lang=languageForPassage(p),rtl=["ar","ur","he"].includes(lang.key);
   return `<div class="passage-wrap" dir="${rtl?"rtl":"ltr"}">
     <div class="eyebrow"><span class="symbol">${t.symbol}</span><span>${t.name} · ${t.faith}</span></div>
-    <p class="passage">${textFor(p)}</p><p class="citation">${p.citation}</p><p class="source">${lang.label} · ${lang.source}</p>
+    <p class="passage">${textFor(p)}</p><p class="citation">${p.citation}</p><p class="source">${lang.label} · ${(lang.key==="en"&&p.source)?p.source:lang.source}</p>
   </div>
   <div class="actions">
     <button class="action" data-save-id="${p.id}" onclick="toggleSave(${p.id})" aria-label="Save ${p.citation}">${state.saved.includes(p.id)?"♥":"♡"}<small>Save</small></button>
@@ -154,11 +154,11 @@ function openStudy(id){
     </div>
     <div class="study-section">
       <div class="study-label">Where it comes from</div>
-      <p><strong>${p.citation}</strong> is presented here from ${t.name}, within ${t.faith}. You are reading it in ${l.label} using ${l.source}.</p>
+      <p><strong>${p.citation}</strong> is presented here from ${t.name}, within ${t.faith}. You are reading it in ${l.label} using ${(l.key==="en"&&p.source)?p.source:l.source}.</p>
     </div>
     <div class="study-label study-label-themes">Themes</div>
     <div class="tag-row">${p.topics.map(x=>`<span>${x}</span>`).join("")}</div>
-    <div class="study-meta"><span>Text source</span><b>${l.source}</b></div>
+    <div class="study-meta"><span>Text source</span><b>${(l.key==="en"&&p.source)?p.source:l.source}</b></div>
   </div>`);
 }
 function voiceFor(locale){const voices=speechSynthesis.getVoices(),base=locale.toLowerCase().split("-")[0];return voices.find(v=>v.lang.toLowerCase()===locale.toLowerCase())||voices.find(v=>v.lang.toLowerCase().startsWith(base))||null}
