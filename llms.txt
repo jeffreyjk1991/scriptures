@@ -22,6 +22,11 @@ Users can scroll scripture one passage at a time across Christianity, Islam, Hin
 - https://www.scrollmyfaith.com/guru-granth-sahib
 - https://www.scrollmyfaith.com/tao-te-ching
 
+## Bhagavad Gita page roles
+- https://www.scrollmyfaith.com/bhagavad-gita — primary broad page for Bhagavad Gita verses, English/Sanskrit reading and selected Hindi passages
+- https://www.scrollmyfaith.com/guide-bhagavad-gita — beginner explanation of what the Bhagavad Gita is
+- https://www.scrollmyfaith.com/articles/bhagavad-gita-verses-about-purpose-and-duty — focused guide to Bhagavad Gita 2:47, duty, action and detachment
+
 ## High-intent topic pages
 - https://www.scrollmyfaith.com/topic/anxiety — scriptures for anxiety, stress and fear
 - https://www.scrollmyfaith.com/topic/trust — scriptures for hope, strength and trust
