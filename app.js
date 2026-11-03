@@ -413,7 +413,9 @@ function setLanguageFromYou(slug,key){
   localStorage.setItem("ws-langs",JSON.stringify(state.langs));
   resetSeenForPool(languagePool(slug,key));
   let moodCleared=false;
-  if(state.topic&&sourceList().length===0){state.topic=null;moodCleared=true;syncFeedUrl()}
+  if(key!=="en")state.filter=slug;
+  if(state.topic&&sourceList().length===0){state.topic=null;moodCleared=true}
+  syncFeedUrl();
   closeSheet();
   refreshPersonalizedFeed();
   renderYou();
