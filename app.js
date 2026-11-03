@@ -32,6 +32,7 @@ const languageForPassage=p=>{
   return t.languages.find(l=>l.key==="en")||t.languages[0];
 };
 const textFor=p=>p.text[languageForPassage(p).key]||p.text.en;
+const sourceForPassage=p=>{const lang=languageForPassage(p);return lang.key==="en"&&p.source?p.source:lang.source};
 
 function sourceList(){let list=state.filter==="all"?passages:passages.filter(p=>p.tradition===state.filter);if(state.topic)list=list.filter(p=>p.topics.includes(state.topic));return list.length?list:(state.filter==="all"?passages:passages.filter(p=>p.tradition===state.filter))}
 function passageWeight(p){
