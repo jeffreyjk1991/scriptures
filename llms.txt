@@ -27,6 +27,18 @@ Users can scroll scripture one passage at a time across Christianity, Islam, Hin
 - https://www.scrollmyfaith.com/guide-bhagavad-gita — beginner explanation of what the Bhagavad Gita is
 - https://www.scrollmyfaith.com/articles/bhagavad-gita-verses-about-purpose-and-duty — focused guide to Bhagavad Gita 2:47, duty, action and detachment
 
+## Guru Granth Sahib page roles
+- https://www.scrollmyfaith.com/guru-granth-sahib — primary page for Guru Granth Sahib verses, Gurmukhi and English reading, and selected Hindi passages
+- https://www.scrollmyfaith.com/guide-guru-granth-sahib — informational guide explaining what the Guru Granth Sahib is, the meaning of the title, Gurmukhi and translation
+
+## Tanakh page roles
+- https://www.scrollmyfaith.com/tanakh — primary page for reading selected Tanakh passages
+- https://www.scrollmyfaith.com/guide-tanakh — informational guide for Tanakh meaning, acronym/etymology, Torah, Nevi’im, Ketuvim and Hebrew Bible context
+
+## Dhammapada page roles
+- https://www.scrollmyfaith.com/dhammapada — primary page for Dhammapada verses and short reading
+- https://www.scrollmyfaith.com/guide-dhammapada — informational guide explaining what the Dhammapada is, the title’s meaning and its place in the Pāli Canon
+
 ## High-intent topic pages
 - https://www.scrollmyfaith.com/topic/anxiety — scriptures for anxiety, stress and fear
 - https://www.scrollmyfaith.com/topic/trust — scriptures for hope, strength and trust
