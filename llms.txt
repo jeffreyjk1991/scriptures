@@ -6,8 +6,9 @@ Scroll My Faith (scrollmyfaith.com) is a multilingual, multi-faith scripture dis
 Users can scroll scripture one passage at a time across Christianity, Islam, Hinduism, Buddhism, Judaism, Sikhism and Taoism. Every passage remains clearly attributed to its tradition and translation.
 
 ## Discovery features
+- https://www.scrollmyfaith.com/compare — hub for cross-faith comparisons by topic
 - https://www.scrollmyfaith.com/daily — Today’s 7, one short daily passage from each of seven faith traditions
-- https://www.scrollmyfaith.com/search — natural-language scripture discovery by feeling, need, tradition or citation
+- https://www.scrollmyfaith.com/search — natural-language scripture discovery by feeling, need, tradition or citation; query parameters are interactive searches while /search is the canonical page
 - https://www.scrollmyfaith.com/compare/peace — compare peace across seven faith traditions
 - https://www.scrollmyfaith.com/compare/purpose — compare purpose and guidance across seven faith traditions
 - https://www.scrollmyfaith.com/compare/love — compare love across seven faith traditions
