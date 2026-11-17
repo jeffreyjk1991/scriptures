@@ -1751,32 +1751,33 @@ button:focus-visible,a:focus-visible{
 
 /* Subtle discovery prompt after a few swipes */
 .feature-discovery-prompt{
-  position:fixed;left:50%;bottom:82px;z-index:42;
-  width:min(360px,calc(100vw - 32px));
-  transform:translate(-50%,16px);
+  position:fixed;left:50%;bottom:80px;z-index:42;
+  width:min(330px,calc(100vw - 36px));
+  transform:translate(-50%,10px);
   opacity:0;pointer-events:none;
-  display:flex;align-items:center;justify-content:space-between;gap:14px;
-  padding:13px 14px 13px 16px;
-  border:1px solid rgba(255,255,255,.14);
-  background:rgba(61,67,74,.78);
-  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
-  box-shadow:0 10px 32px rgba(0,0,0,.16);
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:10px 11px 10px 13px;
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:12px;
+  background:rgba(255,255,255,.10);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  box-shadow:none;
   transition:opacity .22s ease,transform .22s ease;
 }
 .feature-discovery-prompt.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}
-.feature-discovery-copy{display:grid;gap:6px}
+.feature-discovery-copy{display:grid;gap:5px}
 .feature-discovery-copy>span{
-  color:rgba(255,255,255,.72);font-size:10px;font-weight:600;letter-spacing:.02em
+  color:rgba(255,255,255,.58);font-size:9px;font-weight:560;letter-spacing:.015em
 }
-.feature-discovery-copy nav{display:flex;gap:14px;flex-wrap:wrap}
+.feature-discovery-copy nav{display:flex;gap:12px;flex-wrap:wrap}
 .feature-discovery-copy a{
-  color:#fff;text-decoration:none;font-size:11px;font-weight:650;
-  border-bottom:1px solid rgba(255,255,255,.20);padding-bottom:2px
+  color:rgba(255,255,255,.86);text-decoration:none;font-size:10px;font-weight:620;
+  border:0;padding:0
 }
 .feature-discovery-prompt>button{
-  flex:0 0 auto;border:0;background:transparent;color:rgba(255,255,255,.45);
-  font-size:19px;font-weight:300;line-height:1;padding:6px;cursor:pointer
+  flex:0 0 auto;border:0;background:transparent;color:rgba(255,255,255,.30);
+  font-size:17px;font-weight:300;line-height:1;padding:5px;cursor:pointer
 }
 @media(max-width:420px){
-  .feature-discovery-prompt{bottom:76px;width:calc(100vw - 24px)}
+  .feature-discovery-prompt{bottom:74px;width:calc(100vw - 28px)}
 }
