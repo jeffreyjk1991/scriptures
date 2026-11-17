@@ -451,7 +451,7 @@ function initFeatureDiscoveryPrompt(){
     try{localStorage.setItem(key,"1")}catch{}
     const e=document.createElement("div");
     e.className="feature-discovery-prompt";
-    e.innerHTML='<div class="feature-discovery-copy"><span>Want something specific?</span><nav><a href="/daily">Today</a><a href="/compare/peace">Compare</a><a href="/search">Search</a></nav></div><button type="button" aria-label="Dismiss">×</button>';
+    e.innerHTML='<div class="feature-discovery-copy"><span>Want something specific?</span><nav><a href="/daily">Today</a><a href="/compare">Compare</a><a href="/search">Search</a></nav></div><button type="button" aria-label="Dismiss">×</button>';
     document.querySelector(".app")?.appendChild(e);
     requestAnimationFrame(()=>e.classList.add("show"));
     const dismiss=()=>{e.classList.remove("show");setTimeout(()=>e.remove(),260)};
