@@ -311,7 +311,8 @@ function speakPassage(id){
 }
 function passageShareUrl(id){
   const canonical=(location.hostname==="scrollmyfaith.com"||location.hostname==="www.scrollmyfaith.com")?location.origin:"https://www.scrollmyfaith.com";
-  return canonical+"/verse/"+Number(id);
+  const exact={7:"/verse/bhagavad-gita-2-47",10:"/verse/dhammapada-1",11:"/verse/dhammapada-5",16:"/verse/mool-mantar"};
+  return canonical+(exact[Number(id)]||("/?passage="+Number(id)));
 }
 async function sharePassage(id){
   const p=passages.find(x=>x.id===id);
