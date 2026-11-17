@@ -1781,3 +1781,24 @@ button:focus-visible,a:focus-visible{
 @media(max-width:420px){
   .feature-discovery-prompt{bottom:74px;width:calc(100vw - 28px)}
 }
+
+
+.feature-seo-copy{
+  margin:38px 0 8px;
+  padding-top:30px;
+  border-top:1px solid rgba(255,255,255,.10);
+  max-width:760px;
+}
+.feature-seo-copy h2{
+  color:rgba(255,255,255,.91);
+  font:400 26px/1.2 Georgia,"Times New Roman",serif;
+  letter-spacing:-.025em;
+  margin:28px 0 12px;
+}
+.feature-seo-copy p{
+  color:rgba(255,255,255,.58);
+  font-size:13px;
+  line-height:1.75;
+  max-width:690px;
+}
+.feature-seo-copy .seo-links{margin-top:20px}
