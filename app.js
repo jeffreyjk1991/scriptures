@@ -179,7 +179,7 @@ function chooseMood(topic){
   if(topic&&sourceList().length===0){
     state.topic=previous;
     closeSheet();
-    toast("No passages are available for that mood with the current language and tradition");
+    toast("No passages are available for that need with the current language and tradition");
     return;
   }
   syncFeedUrl();closeSheet();updateHeader();renderBatch(true,FEED_BATCH_SIZE);feed.scrollTop=0
@@ -189,7 +189,7 @@ function updateHeader(){
   const filterLabel=state.filter==="all"?"All":tradition(state.filter).name;
   $("#filterBtn").textContent=filterLabel;
   const mood=moods.find(m=>m.topic===state.topic);
-  $("#moodBtn").textContent=mood?mood.label:"Mood";
+  $("#moodBtn").textContent=mood?mood.label:"Need";
   const p=activePassage();
   $("#langBtn").textContent=p?languageForPassage(p).short:"EN";
 }
@@ -420,7 +420,7 @@ function setLanguageFromYou(slug,key){
   closeSheet();
   refreshPersonalizedFeed();
   renderYou();
-  toast("Language updated"+(moodCleared?" · mood cleared because no translated passages matched":""));
+  toast("Language updated"+(moodCleared?" · need cleared because no translated passages matched":""));
 }
 function resetPreferences(){
   state.interests={traditions:[],topics:[]};
@@ -440,6 +440,36 @@ function clearSaved(){state.saved=[];localStorage.setItem("ws-saved","[]");rende
 function markCurrent(){const center=feed.getBoundingClientRect().top+feed.clientHeight/2;let best=null,d=Infinity;document.querySelectorAll(".slide").forEach(s=>{const r=s.getBoundingClientRect(),dist=Math.abs((r.top+r.height/2)-center);if(dist<d){d=dist;best=s}});document.querySelectorAll(".slide").forEach(s=>s.classList.toggle("current",s===best));if(best){state.activeId=Number(best.dataset.id);updateHeader()}}
 $("#filterBtn").onclick=openFilter;$("#moodBtn").onclick=openMood;$("#langBtn").onclick=openLanguage;
 function toast(msg){const e=document.createElement("div");e.className="toast";e.textContent=msg;document.body.appendChild(e);setTimeout(()=>e.remove(),1300)}
+
+function initFeatureDiscoveryPrompt(){
+  const key="ws-feature-discovery-v1";
+  try{if(localStorage.getItem(key))return}catch{}
+  let startId=null,changes=0,shown=false,lastId=null;
+  const show=()=>{
+    if(shown)return;
+    shown=true;
+    try{localStorage.setItem(key,"1")}catch{}
+    const e=document.createElement("div");
+    e.className="feature-discovery-prompt";
+    e.innerHTML='<div class="feature-discovery-copy"><span>Want something specific?</span><nav><a href="/daily">Today</a><a href="/compare/peace">Compare</a><a href="/search">Search</a></nav></div><button type="button" aria-label="Dismiss">×</button>';
+    document.querySelector(".app")?.appendChild(e);
+    requestAnimationFrame(()=>e.classList.add("show"));
+    const dismiss=()=>{e.classList.remove("show");setTimeout(()=>e.remove(),260)};
+    e.querySelector("button")?.addEventListener("click",dismiss);
+    setTimeout(dismiss,9000);
+  };
+  const watch=()=>{
+    const id=Number(state.activeId)||null;
+    if(!id)return;
+    if(startId===null){startId=id;lastId=id;return}
+    if(id!==lastId){
+      lastId=id;changes++;
+      if(changes>=4){show();feed.removeEventListener("scroll",onScroll)}
+    }
+  };
+  const onScroll=()=>requestAnimationFrame(watch);
+  feed.addEventListener("scroll",onScroll,{passive:true});
+}
 
 function initFirstVisitCoach(){
   const key="ws-first-visit-coach-v1";
@@ -502,5 +532,5 @@ if(state.hadSeenHistory||hasCustomFeed){
   updateHeader();
   ensureRunway();
 }
-if(initialMoodCleared)setTimeout(()=>toast("That mood had no passages in the selected language; showing the available language feed"),180);
-const deep=passageParam;if(deep&&passages.some(p=>p.id===Number(deep)))setTimeout(()=>jumpTo(Number(deep)),50);else setTimeout(initFirstVisitCoach,550);
+if(initialMoodCleared)setTimeout(()=>toast("That need had no passages in the selected language; showing the available language feed"),180);
+const deep=passageParam;if(deep&&passages.some(p=>p.id===Number(deep)))setTimeout(()=>jumpTo(Number(deep)),50);else setTimeout(initFirstVisitCoach,550);setTimeout(initFeatureDiscoveryPrompt,900);
